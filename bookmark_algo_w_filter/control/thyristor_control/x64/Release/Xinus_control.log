@@ -1,0 +1,18 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8004: Katalog Output nie kończy się ukośnikiem. To wystąpienie kompilacji doda ukośnik, ponieważ jest on niezbędny, aby możliwa była poprawna ocena katalogu Output.
+  main.c
+C:\Users\Maciek\Desktop\TPZ\Models\MasterControll\Symulacja\bookmark_algo_w_filter\control\thyristor_control\main.c(98,27): warning C4244: "=": konwersja z "const double" do "float", możliwa utrata danych
+C:\Users\Maciek\Desktop\TPZ\Models\MasterControll\Symulacja\bookmark_algo_w_filter\control\thyristor_control\main.c(104,37): warning C4244: "=": konwersja z "const double" do "short", możliwa utrata danych
+C:\Users\Maciek\Desktop\TPZ\Models\MasterControll\Symulacja\bookmark_algo_w_filter\control\thyristor_control\main.c(114,27): warning C4013: niezdefiniowany "ACTUAL_TAP"; przy założeniu, że extern zwraca int
+C:\Users\Maciek\Desktop\TPZ\Models\MasterControll\Symulacja\bookmark_algo_w_filter\control\thyristor_control\main.c(116,45): warning C4244: "=": konwersja z "const double" do "short", możliwa utrata danych
+C:\Users\Maciek\Desktop\TPZ\Models\MasterControll\Symulacja\bookmark_algo_w_filter\control\thyristor_control\main.c(118,26): warning C4244: "=": konwersja z "const double" do "float", możliwa utrata danych
+C:\Users\Maciek\Desktop\TPZ\Models\MasterControll\Symulacja\bookmark_algo_w_filter\control\thyristor_control\main.c(127,46): warning C4244: "funkcja": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\Maciek\Desktop\TPZ\Models\MasterControll\Symulacja\bookmark_algo_w_filter\control\thyristor_control\main.c(127,64): warning C4244: "funkcja": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\Maciek\Desktop\TPZ\Models\MasterControll\Symulacja\bookmark_algo_w_filter\control\thyristor_control\main.c(183,46): warning C4244: "funkcja": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\Maciek\Desktop\TPZ\Models\MasterControll\Symulacja\bookmark_algo_w_filter\control\thyristor_control\main.c(183,68): warning C4244: "funkcja": konwersja z "double" do "float", możliwa utrata danych
+     Trwa tworzenie biblioteki ..\..\thyristor_control.lib i obiektu ..\..\thyristor_control.exp
+  Trwa generowanie kodu
+  1 of 6 functions (16.7%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Zakończono generowanie kodu
+  Xinus_control.vcxproj -> C:\Users\Maciek\Desktop\TPZ\Models\MasterControll\Symulacja\bookmark_algo_w_filter\thyristor_control.dll

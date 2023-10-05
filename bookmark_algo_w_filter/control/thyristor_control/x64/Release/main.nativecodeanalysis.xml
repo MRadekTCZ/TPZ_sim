@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\macie\Desktop\Semestr2\GDE\prezentacja\bookmark_algo_w_filter\control\thyristor_control\</FILEPATH>
+      <FILENAME>main.c</FILENAME>
+      <LINE>401</LINE>
+      <COLUMN>10</COLUMN>
+    </SFA>
+    <DEFECTCODE>6384</DEFECTCODE>
+    <DESCRIPTION>Dzielenie wyniku funkcji sizeof na wskaźniku przez inną wartość.</DESCRIPTION>
+    <FUNCTION>Actual_tap_number_set</FUNCTION>
+    <DECORATED>Actual_tap_number_set</DECORATED>
+    <FUNCLINE>396</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

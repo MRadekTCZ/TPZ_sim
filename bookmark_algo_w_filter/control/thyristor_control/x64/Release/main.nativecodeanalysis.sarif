@@ -1,0 +1,122 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C6384",
+          "message": {
+            "text": "Dzielenie wyniku funkcji sizeof na wskaźniku przez inną wartość."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/macie/Desktop/Semestr2/GDE/prezentacja/bookmark_algo_w_filter/control/thyristor_control/main.c"
+                },
+                "region": {
+                  "startLine": 401,
+                  "startColumn": 11,
+                  "endLine": 401,
+                  "endColumn": 18
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "Actual_tap_number_set",
+                  "decoratedName": "Actual_tap_number_set",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.31.31105.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "commandLine": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.31.31103\\bin\\HostX64\\x64\\c1.dll\" -ACf{1F7B090C-16DB-4822-966A-A93D26ED4681} -ACpmspft140.dll -Alint -D_PREFAST_ -D_AST_FE_ -Analyze -zm0x00007FF6D8619CC0 -il C:\\Users\\macie\\AppData\\Local\\Temp\\_CL_f4046216ast -typedil -f main.c -Ze -D_MSC_EXTENSIONS -Zp16 -pc \\:/ -D_MSC_VER=1931 -D_MSC_FULL_VER=193131105 -D_MSC_BUILD=0 -D_M_AMD64=100 -ZILP448 -D_M_X64=100 -D_WIN64 -D_WIN32 -nologo -W 3 -diagnostics:column -D_GUARDOVERFLOW_CRT_ALLOCATORS=1 -GF -Og -Oi -Oy -Ot -ltcg -DCODE_ANALYSIS -DNDEBUG -DXinuscontrol_EXPORTS -D_WINDOWS -D_USRDLL -D_WINDLL -D_UNICODE -DUNICODE -D_MT -D_DLL -GS -D_M_FP_PRECISE -Fox64\\Release\\main.obj -Fdx64\\Release\\vc143.pdb -external:W 3 -Gd -analyze:projectdirectory C:\\Users\\macie\\Desktop\\Semestr2\\GDE\\prezentacja\\bookmark_algo_w_filter\\control\\thyristor_control -analyze:rulesetdirectory ;C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Team Tools\\Static Analysis Tools\\\\Rule Sets; -analyze:ruleset C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Team Tools\\Static Analysis Tools\\Rule Sets\\NativeRecommendedRules.ruleset -analyze:quiet -analyze:plugin C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.31.31103\\bin\\HostX64\\x64\\EspXEngine.dll -FC -errorreport:prompt -I C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.31.31103\\include -I C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.31.31103\\atlmfc\\include -I C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\VS\\include -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\ucrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\um -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\shared -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\winrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\cppwinrt -I C:\\Users\\macie\\Desktop\\Semestr2\\GDE\\prezentacja\\bookmark_algo_w_filter\\control\\thyristor_control\\Include\\um -external:I C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.31.31103\\include -I C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.31.31103\\include -external:I C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.31.31103\\atlmfc\\include -I C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.31.31103\\atlmfc\\include -external:I C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\VS\\include -I C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\VS\\include -external:I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\ucrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\ucrt -external:I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\um -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\um -external:I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\shared -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\shared -external:I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\winrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\winrt -external:I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\cppwinrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\cppwinrt -external:I C:\\Users\\macie\\Desktop\\Semestr2\\GDE\\prezentacja\\bookmark_algo_w_filter\\control\\thyristor_control\\Include\\um -I C:\\Users\\macie\\Desktop\\Semestr2\\GDE\\prezentacja\\bookmark_algo_w_filter\\control\\thyristor_control\\Include\\um",
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///C:/Users/macie/Desktop/Semestr2/GDE/prezentacja/bookmark_algo_w_filter/control/thyristor_control/main.c"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "dec8fb22ff97b37234bf58e80b96b8eaa48ecabed957ee98fe9269020df2b2f6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/macie/desktop/semestr2/gde/prezentacja/bookmark_algo_w_filter/control/thyristor_control/dllheader.h"
+          },
+          "hashes": {
+            "sha-256": "0658088b2d1a9009d4769d52f777ec2968b91575ceb5d9a62377991be1019654"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/macie/desktop/semestr2/gde/prezentacja/bookmark_algo_w_filter/control/thyristor_control/phase_angle.h"
+          },
+          "hashes": {
+            "sha-256": "cf699a27753fce0b5448984ae892123f08b5277d9aed28a84360e37abaf52535"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/macie/desktop/semestr2/gde/prezentacja/bookmark_algo_w_filter/control/thyristor_control/filter.h"
+          },
+          "hashes": {
+            "sha-256": "cb8c572d67c1e59037188371045d89f9fc985d75a37bfdfd31e0c211cddfa1fd"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/macie/desktop/semestr2/gde/prezentacja/bookmark_algo_w_filter/control/thyristor_control/detload.h"
+          },
+          "hashes": {
+            "sha-256": "35563b574651cc56018d2fc99d93219ff7d4dcde5245b257972f022eccd9c723"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/macie/desktop/semestr2/gde/prezentacja/bookmark_algo_w_filter/control/thyristor_control/phase_angle.c"
+          },
+          "hashes": {
+            "sha-256": "eeb31cccaf63ab12a477ee90ccb9497f88e0ac519da9cd953806184f2a0d47b2"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/macie/desktop/semestr2/gde/prezentacja/bookmark_algo_w_filter/control/thyristor_control/filter.c"
+          },
+          "hashes": {
+            "sha-256": "20d9568e84f4da8fb4853616e035211cc31434cb7b307933d21a4b81f5612633"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/macie/desktop/semestr2/gde/prezentacja/bookmark_algo_w_filter/control/thyristor_control/detload.c"
+          },
+          "hashes": {
+            "sha-256": "488df2ccdfbf0ad1fe8e240e04a51983e63081ad4300987b17d03a0da1d2e619"
+          }
+        }
+      ]
+    }
+  ]
+}
