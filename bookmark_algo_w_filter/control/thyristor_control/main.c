@@ -6,10 +6,12 @@
 #include "DllHeader.h"
 #include <stdbool.h>
 #include "Bookmark.h"
+
 /*********************************************************************************************************************************/
-#define SYMULACJA
+#define SIMULATION
 /*********************************************************************************************************************************/
-#ifdef SYMULACJA
+
+#ifdef SIMULATION
 #define type_real double
 #define keyword
 #else
@@ -17,202 +19,174 @@
 #define keyword static __inline
 #endif
 
-double voltage_phase[3], current_phase[3]; //k¹ty fazowe theta i, theta u
-double actual_current[3]; // pomiar pr¹du
+double voltage_phase[3], current_phase[3]; // Phase angles theta i, theta u
+double actual_current[3]; // Current measurements
 static type_real temp[10];
 double time_temp = 0.0;
 TPPZ tppz[3];
 
 struct Watchdog watchdog[3];
 
+short int tap_set_value[5];
+double tap_set_time[5];
 
+short int Global_set_actual_tap;
 
-short int tap_set_value[5];// = { 0,2, 3, 4, 1 };// mona rcznie zada zaczepy
-double tap_set_time[5];// = { 0, 0.024, 0.071, 0.112, 0.216 };
-
-
-short int Global_set_actual_tap; //sygna³ przekazuj¹cy informacjê o zadanym zaczepie
-
-
-
-
-//bool next_step;
+// bool next_step;
 
 static type_real TS, fs;
 
+float q_error; // Error for the q component of the PLL system
 
-float q_error; //uchyb sk³adowej q uk³adu PLL
-
-
-
-static short int state_machine[3]; //Maszyna stanów dla ka¿dej fazy
-static short int set_actual_tap[3] = { 0,0,0 }; //Zadany numer zaczepu dla ka¿dej fazy (mogê one byæ przyjmowaæ z pewnym opóŸnieniem wzglêdem pozosta³ych faz
-static short int actual_tap[3] = { 0,0,0 }; //Aktualny numer - w trakcie sekwencji prze³¹czanie mo¿e byæ inny dla ró¿nych faz. W stanie ustalony jest taki sam dla wszystkich faz
-enum Load Loadtype[3] = { Inductive,Inductive,Inductive };
-short int tap_delta; //ró¿nica zmiany zaczepu - dla zmiany stopniowej zawsze 1, dla zmiany skokowej zalezy od ró¿nicy zadanego i aktualnego zaczepu
-
-
+static short int state_machine[3]; // State machine for each phase
+static short int set_actual_tap[3] = {0, 0, 0}; // Desired tap number for each phase (may lag behind other phases)
+static short int actual_tap[3] = {0, 0, 0}; // Current tap number - during the switching sequence, it may differ for different phases
+enum Load Loadtype[3] = {Inductive, Inductive, Inductive};
+short int tap_delta;
 
 void plecsSetSizes(struct SimulationSizes* aSizes)
 {
-	aSizes->numInputs = 14;
-	aSizes->numOutputs = 11 + 5;
-	aSizes->numStates = 0;
-	aSizes->numParameters = 1; //number of user parameters passed in
+    aSizes->numInputs = 14;
+    aSizes->numOutputs = 11 + 5;
+    aSizes->numStates = 0;
+    aSizes->numParameters = 1;
 }
 
-//This function is automatically called at the beginning of the simulation
+// This function is automatically called at the beginning of the simulation
 void plecsStart(struct SimulationState* aState)
 {
-	TS = aState->parameters[0];	//40e-6		okres impulsowania fs = 25kHz
-	fs = 1.0 / TS;// //f prbkowania
-	aState->outputs[0] = 0;
-	aState->outputs[1] = 1;
-	aState->outputs[2] = 1;
-	aState->outputs[3] = 0;
-	aState->outputs[4] = 0;
-	aState->outputs[5] = 0;
-	aState->outputs[6] = 0;
-	aState->outputs[7] = 0;
-	aState->outputs[8] = 0;
-	aState->outputs[9] = 0;
-	aState->outputs[10] = 0;
-	
-
-
+    TS = aState->parameters[0];    // 40e-6 sampling period fs = 25kHz
+    fs = 1.0 / TS; // Sampling frequency
+    aState->outputs[0] = 0;
+    aState->outputs[1] = 1;
+    aState->outputs[2] = 1;
+    aState->outputs[3] = 0;
+    aState->outputs[4] = 0;
+    aState->outputs[5] = 0;
+    aState->outputs[6] = 0;
+    aState->outputs[7] = 0;
+    aState->outputs[8] = 0;
+    aState->outputs[9] = 0;
+    aState->outputs[10] = 0;
 }
 
-//This function is automatically called every sample time
-//output is written to DLL output port after the output delay
+// This function is automatically called every sample time
+// Output is written to the DLL output port after the output delay
 void plecsOutput(struct SimulationState* aState)
 {
+    time_temp = aState->time;
 
-	time_temp = aState->time;
+    /*********************************************************************************************************************************/
+    // START OF CONTROL ALGORITHM
+    /*********************************************************************************************************************************/
 
-	/*********************************************************************************************************************************/
-	//POCZATEK ALGORYTMU STEROWANIA
-	/*********************************************************************************************************************************/
+    // Initialization
+    if (time_temp < 0.001)
+    {
+        q_error = aState->inputs[12];
+        tppz[0].phase = L1;
 
-	//Inicjalizacja
-	if (time_temp < 0.001) {
-		q_error = aState->inputs[12];
-		tppz[0].phase = L1;
-		
-		for (int i = 0; i < 5; i++)
-		{
-			tap_set_time[i] = aState->inputs[2 + 2 * i];
-			tap_set_value[i] = aState->inputs[3 + 2 * i];
-		}
-		actual_tap[0] = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            tap_set_time[i] = aState->inputs[2 + 2 * i];
+            tap_set_value[i] = aState->inputs[3 + 2 * i];
+        }
+        actual_tap[0] = 0;
 
-		tppz[0].Tap_select[0].Tap_down = ON;
-		tppz[0].Tap_select[0].Tap_up = ON;
-	}
+        tppz[0].Tap_select[0].Tap_down = ON;
+        tppz[0].Tap_select[0].Tap_up = ON;
+    }
 
-	//Program ci¹g³y
-	if (time_temp < 0.05) {
-		Global_set_actual_tap = ACTUAL_TAP(tap_set_value, tap_set_time, time_temp); //Odczyt zadanych wartoœci zaczepu w chwilach czasowych na potrzeby symulacji
-	}
-	else Global_set_actual_tap = aState->inputs[2];
-	
-	q_error = aState->inputs[12];
-	//Odczyt k¹tów fazowych
-	voltage_phase[0] = aState->inputs[1]; // input 1 must be voltage
-	current_phase[0] = aState->inputs[0]; // input 2 must be current
-	actual_current[0] = aState->inputs[13];
-	//Global_set_actual_tap = aState->inputs[3];
-	
+    // Continuous program
+    if (time_temp < 0.05)
+    {
+        Global_set_actual_tap = ACTUAL_TAP(tap_set_value, tap_set_time, time_temp);
+    }
+    else
+    {
+        Global_set_actual_tap = aState->inputs[2];
+    }
 
-	//Debugowanie, podgl¹d niektórych dodatkowych zmiennych
-	aState->outputs[13] = LOAD_DET(voltage_phase[0], current_phase[0]);
-	aState->outputs[14] = fabs(1 - q_error);
-	//aState->outputs[14] = actual_tap[phase];
-	aState->outputs[14] = Global_set_actual_tap;;
-	aState->outputs[15] = Global_set_actual_tap;
+    q_error = aState->inputs[12];
+    voltage_phase[0] = aState->inputs[1]; // input 1 must be voltage
+    current_phase[0] = aState->inputs[0]; // input 2 must be current
+    actual_current[0] = aState->inputs[13];
+    // Global_set_actual_tap = aState->inputs[3];
 
+    // Debugging, viewing some additional variables
+    aState->outputs[13] = LOAD_DET(voltage_phase[0], current_phase[0]);
+    aState->outputs[14] = fabs(1 - q_error);
+    // aState->outputs[14] = actual_tap[phase];
+    aState->outputs[14] = Global_set_actual_tap;
+    aState->outputs[15] = Global_set_actual_tap;
 
+    if (time_temp > 0.03)
+    {
+        for (int phase = 0; phase < 3; phase++)
+        {
+            tap_delta = Tap_diff(set_actual_tap[phase], actual_tap[phase], step);
 
+            if (actual_current[phase] <= NO_LOAD_STATE)
+            {
+                set_actual_tap[phase] = Global_set_actual_tap;
 
-	
+                if (actual_tap[phase] != set_actual_tap[phase])
+                {
+                    switch (state_machine[phase])
+                    {
+                    case 0:
+                        if (voltage_phase[phase] < (10 - MARGIN))
+                        {
+                            tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
+                            tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
+                            state_machine[phase] = 1;
+                        }
+                        break;
+                    case 1:
+                        if (voltage_phase[phase] > (350 + MARGIN))
+                        {
+                            tppz[phase].Tap_select[set_actual_tap[phase]].Tap_down = ON;
+                            tppz[phase].Tap_select[set_actual_tap[phase]].Tap_up = ON;
+                            actual_tap[phase] = set_actual_tap[phase];
+                            state_machine[phase] = 0;
+                        }
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (state_machine[phase] == 0 && (q_error < 0.01))
+                {
+                    Loadtype[phase] = LOAD_DET(voltage_phase[phase], current_phase[phase]);
+                    set_actual_tap[phase] = Global_set_actual_tap;
+                }
+                else if (state_machine[phase] == 1 && (q_error >= 0.01))
+                {
+                    set_actual_tap[phase] = actual_tap[phase];
+                    tppz[phase].Tap_select[actual_tap[phase]].Tap_down = ON;
+                    tppz[phase].Tap_select[actual_tap[phase]].Tap_up = ON;
+                    state_machine[phase] = 0;
+                }
 
-	if (time_temp > 0.03) 
-	{		
-		
-		//Pêtla dla wszystkich trzech faz - w symulacji jest tylko jeden, lecz jest to rozwi¹zanie skalowalne
-		for (int phase = 0; phase < 3; phase++) 
-		{
-			//program_Watchdog(&tppz[phase], &watchdog[phase], &state_machine[phase], &actual_tap[phase], set_actual_tap[phase]);
-			tap_delta = Tap_diff(set_actual_tap[phase], actual_tap[phase], step);
-			if (actual_current[phase] <= NO_LOAD_STATE)
-			{
-
-				set_actual_tap[phase] = Global_set_actual_tap;
-				if (actual_tap[phase] != set_actual_tap[phase])
-				{
-					switch (state_machine[phase])
-					{
-					case 0:
-						if (voltage_phase[phase] < (10 - MARGIN)) // Recyzja dla obci¹¿enia rezystancyjnego jest podejmnowana jedynie na bazie napiêcia - prze³¹czenia jest niesekwencyjne
-						{
-							tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
-							tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
-							state_machine[phase] = 1;
-						}
-						break;
-					case 1:
-						if (voltage_phase[phase] > (350 + MARGIN)) // Recyzja dla obci¹¿enia rezystancyjnego jest podejmnowana jedynie na bazie napiêcia - prze³¹czenia jest niesekwencyjne
-						{
-							tppz[phase].Tap_select[set_actual_tap[phase]].Tap_down = ON;
-							tppz[phase].Tap_select[set_actual_tap[phase]].Tap_up = ON;
-							actual_tap[phase] = set_actual_tap[phase];
-							state_machine[phase] = 0;
-						}
-						break;
-					}
-				}
-
-			}
-
-			else
-			{
-
-				//Przygotowanie algorytmu na to, aby nie zmienia³ zaczepu, gdy w systemie trwa stan nieustalony
-				if (state_machine[phase] == 0 && (q_error < 0.01))
-				{
-
-					Loadtype[phase] = LOAD_DET(voltage_phase[phase], current_phase[phase]);
-					
-					set_actual_tap[phase] = Global_set_actual_tap;
-
-				}
-				//Przygotowanie algorytmu na to, aby przerwa³ sekwencje prze³¹czania, gdy w sieci rozpocznie siê stan przejœciowy (powrót z stanu 1 do stanu 0)
-				else if (state_machine[phase] == 1 && (q_error >= 0.01))
-				{
-					set_actual_tap[phase] = actual_tap[phase];
-
-					tppz[phase].Tap_select[actual_tap[phase]].Tap_down = ON;
-					tppz[phase].Tap_select[actual_tap[phase]].Tap_up = ON;
-					state_machine[phase] = 0;
-
-				}
 
 				//Algorytm zmiany zaczepu
 				//Tutaj zaczyna si ptla while docelowego algorytmu na mikrokontrolerze /FPGA
 				if (actual_tap[phase] == set_actual_tap[phase])
 				{
-					watchdog[phase].counter = 0; //je¿eli zaczep zadany jest równy aktualnemu - reset watchdoga
+					watchdog[phase].counter = 0; //if tap set is equal to actual tap
 				}
 				else if (actual_tap[phase] != set_actual_tap[phase])
 				{
 
 					if (actual_tap[phase] < set_actual_tap[phase])
 					{
-						if (Loadtype[phase] == Resistive) // Warunki przeczenia przy obcieniu rezystancyjnym
+						if (Loadtype[phase] == Resistive) // cos fi -> resistive
 						{
 							switch (state_machine[phase])
 							{
 							case 0:
-								if (voltage_phase[phase] > (180 + MARGIN)) // Recyzja dla obci¹¿enia rezystancyjnego jest podejmnowana jedynie na bazie napiêcia - prze³¹czenia jest niesekwencyjne
+								if (voltage_phase[phase] > (180 + MARGIN)) // non sequantial system
 								{
 									tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 									tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
@@ -221,7 +195,7 @@ void plecsOutput(struct SimulationState* aState)
 								break;
 
 							case 1:
-								if (voltage_phase[phase] > (360 - 5 * MARGIN))  //zezwolenie na zwarcie miedzy zaczepowe o niewielkiej wartoci
+								if (voltage_phase[phase] > (360 - 5 * MARGIN))  //allow for low value short circuit
 								{
 
 									tppz[phase].Tap_select[actual_tap[phase]].Tap_up = ON;
@@ -241,20 +215,21 @@ void plecsOutput(struct SimulationState* aState)
 							}
 						}
 
-						if (Loadtype[phase] == Inductive) // Warunki przeczenia przy obcieniu indukcyjnym 
+						if (Loadtype[phase] == Inductive) // cos fi -> inductive
 						{
 							switch (state_machine[phase])
 							{
 
 							case 0:
-								if (voltage_phase[phase] < (90 - MARGIN) && voltage_phase[phase] > MARGIN && current_phase[phase] < (90 - MARGIN) && current_phase[phase] > MARGIN) // gdy prad jest w fazie z napieciem
+								// if phases of current and voltage have same polarity
+								if (voltage_phase[phase] < (90 - MARGIN) && voltage_phase[phase] > MARGIN && current_phase[phase] < (90 - MARGIN) && current_phase[phase] > MARGIN) 
 								{
 									tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 									tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 									state_machine[phase] = 1;
 								}
 								break;
-								// Warunki case 0 i case 1, s¹ podobne, ale zawsze pomiêdzy nimi jest jeden cykl programu, co daje czas na wy³¹czenie siê tyrystora
+								// case 0 and case 1 are similiar, there is time for turning off thyristor
 							case 1:
 								if (voltage_phase[phase] > MARGIN && voltage_phase[phase] < (180 - MARGIN) && current_phase[phase] > MARGIN && current_phase[phase] < (180 - MARGIN))
 								{
@@ -267,7 +242,7 @@ void plecsOutput(struct SimulationState* aState)
 								break;
 
 							case 2:
-								if (voltage_phase[phase] > (90 + MARGIN) && voltage_phase[phase] < (180 - MARGIN) && current_phase[phase] >(90 + MARGIN))  //Sekwencyjne przeczanie
+								if (voltage_phase[phase] > (90 + MARGIN) && voltage_phase[phase] < (180 - MARGIN) && current_phase[phase] >(90 + MARGIN))  //Sequential
 								{
 
 									tppz[phase].Tap_select[actual_tap[phase] + tap_delta].Tap_down = ON;
@@ -293,7 +268,7 @@ void plecsOutput(struct SimulationState* aState)
 
 						}
 
-						if (Loadtype[phase] == Capacitive) //warunki prze³¹czenia przy obci¹¿eniu pojemnoœciowym
+						if (Loadtype[phase] == Capacitive) //cof fi -> capacitive
 						{
 							switch (state_machine[phase])
 							{
@@ -339,7 +314,7 @@ void plecsOutput(struct SimulationState* aState)
 
 					else if (actual_tap[phase] > set_actual_tap[phase])
 					{
-						if (Loadtype[phase] == Resistive) // Warunki przeczenia przy obcieniu rezystancyjnym
+						if (Loadtype[phase] == Resistive) // cos fi -> resistive
 						{
 							switch (state_machine[phase])
 							{
@@ -371,12 +346,12 @@ void plecsOutput(struct SimulationState* aState)
 							}
 						}
 
-						if (Loadtype[phase] == Inductive) //Warunki przeczenia przy obcieniu indukcyjnym
+						if (Loadtype[phase] == Inductive) //cos fi -> inductive
 						{
 							switch (state_machine[phase])
 							{
 							case 0:
-								if (voltage_phase[phase] < (180 - MARGIN) && voltage_phase[phase] > 2 && current_phase[phase] < (180 - MARGIN) && current_phase[phase] > 2) //Wy³¹czenie tyrystorow przed zmian¹ polaryzacji
+								if (voltage_phase[phase] < (180 - MARGIN) && voltage_phase[phase] > 2 && current_phase[phase] < (180 - MARGIN) && current_phase[phase] > 2) //WyÂ³Â¹czenie tyrystorow przed zmianÂ¹ polaryzacji
 								{
 									tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 									tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
@@ -385,7 +360,7 @@ void plecsOutput(struct SimulationState* aState)
 								}
 								break;
 							case 1:
-								if (voltage_phase[phase] > (180 + MARGIN) && current_phase[phase] < (180 - MARGIN)) //prze³¹czenie "na zak³adkê" - za³¹czenie przecienego tyrystora
+								if (voltage_phase[phase] > (180 + MARGIN) && current_phase[phase] < (180 - MARGIN)) //przeÂ³Â¹czenie "na zakÂ³adkÃª" - zaÂ³Â¹czenie przecienego tyrystora
 								{
 									tppz[phase].Tap_select[actual_tap[phase] - tap_delta].Tap_down = ON;
 									state_machine[phase] = 2;
@@ -414,7 +389,7 @@ void plecsOutput(struct SimulationState* aState)
 
 						}
 
-						if (Loadtype[phase] == Capacitive) // Warunki przeczenia przy obcieniu pojemnoœciowym
+						if (Loadtype[phase] == Capacitive) // cos fi -> capacitive
 						{
 
 							//Pierwszy wariant - bezzwarciowy
@@ -460,7 +435,7 @@ void plecsOutput(struct SimulationState* aState)
 							}
 
 							/*
-							//Drugi wariant - dla cos fi bliskiego 1
+							//Second option - cos fi near 1
 							switch (state_machine[phase])
 							{
 							case 0:
@@ -472,7 +447,7 @@ void plecsOutput(struct SimulationState* aState)
 								}
 								break;
 							case 1:
-								if (current_phase[phase] > (360 - 1 * MARGIN) && state_machine[phase] == 1)  //zezwolenie na zwarcie miedzy zaczepowe o niewielkiej wartoci
+								if (current_phase[phase] > (360 - 1 * MARGIN) && state_machine[phase] == 1)  
 								{
 
 									tppz[phase].Tap_select[actual_tap[phase]-1].Tap_down = ON;
@@ -502,17 +477,15 @@ void plecsOutput(struct SimulationState* aState)
 
 	}
 	/*********************************************************************************************************************************/
-	//KONIEC ALGORYTMU STEROWANIA
+	//END OF ALGORITHM
 	/*********************************************************************************************************************************/
 
-	//IN: pomiary - wywolane na koncu funkcji w celu symulacji opoznienia pomiedzy sprzezeniami i sterowaniem
+	//IN: measurments and outputs
 
 
 
 
-	//OUT: sterowanie tyrystorami
 
-	//Przypisanie stanw poszczeglnym wyjciom
 
 	aState->outputs[1] = tppz[0].Tap_select[0].Tap_up;
 	aState->outputs[2] = tppz[0].Tap_select[0].Tap_down;
@@ -530,7 +503,7 @@ void plecsOutput(struct SimulationState* aState)
 
 }
 
-// Na potrzeby symulacji - dekodowanie zadanego zaczepu w danej chwili
+// for simulation purposes
 int ACTUAL_TAP(short int tap_set_value[], double tap_set_time[], double sim_time)
 {
 	int ret;
