@@ -53,24 +53,18 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+
+//BASE ALGO VARAIBLES------------------------
 double voltage_phase[3], current_phase[3]; // Phase angles theta i, theta u
 double current_RMS[3]; // Current measurements
 
 double time_temp = 0.0;
 TPPZ tppz[3];
-
 struct Watchdog watchdog[3];
-
 short int tap_set_value[5];
 double tap_set_time[5];
 
 short int Global_set_actual_tap;
-
-// bool next_step;
-
-
-
-float q_error; // Error for the q component of the PLL system
 
 static short int state_machine[3]; // State machine for each phase
 static short int set_actual_tap[3] = {0, 0, 0}; // Desired tap number for each phase (may lag behind other phases)
@@ -78,14 +72,19 @@ static short int actual_tap[3] = {0, 0, 0}; // Current tap number - during the s
 enum Load Loadtype[3] = {Inductive, Inductive, Inductive};
 short int tap_delta;
 
+//PLL------------------------
+float q_error; // Error for the q component of the PLL system
 uint16_t ADC_measurement[6];
 uint16_t ADC_main_tap;
 
-//Emulation
+
+//EMULATION VARIABLES------------------------
 double current_phase_emulated[3] = {30,150,270}, voltage_phase_emulated[3]={0,120,240};
 double actual_current[3], actual_voltage[3];
 double theta_U_emulated[3] = {0, MRB_TL_PI_BY_3*2, MRB_TL_PI_BY_3*4};
 double theta_I_emulated[3] = {0+COS_PHI_SHIFT, MRB_TL_PI_BY_3*2+COS_PHI_SHIFT, MRB_TL_PI_BY_3*4+COS_PHI_SHIFT};
+
+uint16_t DAC_Output[2] = {0,4095};
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -174,19 +173,19 @@ Error_Handler();
   MX_DMA_Init();
   MX_TIM16_Init();
   MX_DAC1_Init();
+  MX_TIM14_Init();
+  MX_TIM15_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim13);
+  HAL_TIM_Base_Start_IT(&htim14);
+  HAL_TIM_Base_Start_IT(&htim15);
   HAL_TIM_Base_Start_IT(&htim16);
 
   //HAL_ADC_MspInit(&hadc1);
-
-
-
   HAL_ADC_Start_DMA(&hadc1, (uint16_t*)ADC_measurement, 6);
-
-
-
   HAL_ADC_Start(&hadc3);
+  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
+  HAL_DAC_Start(&hdac1, DAC_CHANNEL_2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -298,27 +297,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 	if(htim->Instance == TIM13)
 	{
-		//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+		//LED for indicationg that the programs is running and there is no timeout.
+		//TIM13 interrupt has lowest priority, so if this part has been done, everything is done.
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
 		timer_1++;
-		/*
-		HAL_ADC_Start(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 100);
-		ADC_measurement[0] = HAL_ADC_GetValue(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 100);
-		ADC_measurement[1] = HAL_ADC_GetValue(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 100);
-		ADC_measurement[2] = HAL_ADC_GetValue(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 100);
-		ADC_measurement[3] = HAL_ADC_GetValue(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 100);
-		ADC_measurement[4] = HAL_ADC_GetValue(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 100);
-		ADC_measurement[5] = HAL_ADC_GetValue(&hadc1);
-*/
+
+		//Tap set from measter read
+		//*************************//
 		HAL_ADC_Start(&hadc3);
 		ADC_main_tap = HAL_ADC_GetValue(&hadc3);
+		//Global_set_actual_tap = ADC_main_tap*SCALE;
+		//**************************//
 
+		//PID - MASTER CONTROL (LOCAL)
+		HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R,DAC_Output[0]);
+		HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_2, DAC_ALIGN_12B_R,DAC_Output[1]);
 
 	}
 
@@ -327,7 +320,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		timer_2++;
 
 
-		//Emulations for tests
+		//*************************************************************************************************//
+		//EMULATION - TESTS AND DEBUGGING
+		//*************************************************************************************************//
 		for(int i= 0; i<3; i++)
 		{
 			theta_U_emulated[i] = theta_U_emulated[i]+MRB_TL_PI*2*0.0001*50;
@@ -351,15 +346,31 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(voltage_phase_emulated[0]>360) voltage_phase_emulated[0] = voltage_phase_emulated[0] - 360;
 		if(current_phase_emulated[0]>360) current_phase_emulated[0] = current_phase_emulated[0] - 360;
 
-		//MEASUREMENTS
+
+
+		//*************************************************************************************************//
+		//EMULATION - TESTS AND DEBUGGING
+		//*************************************************************************************************//
+
+		//*************************************************************************************************//
+		//MEASUREMENTS AND PLL ALGORITHM
+		//*************************************************************************************************//
 		q_error = 0;
 		voltage_phase[0] = voltage_phase_emulated[0]; // input 1 must be voltage
 		current_phase[0] = current_phase_emulated[0]; // input 2 must be current
 		current_RMS[0] = 50;
+		//*************************************************************************************************//
+		//MEASUREMENTS AND PLL ALGORITHM
+		//*************************************************************************************************//
 
 
+		//*************************************************************************************************//
+		//MAIN ALGORITHM - 3 phases
+		//*************************************************************************************************//
 		for (int phase = 0; phase < 3; phase++)
 		        {
+					//PROTECTIONS
+					//************************************
 		            tap_delta = Tap_diff(set_actual_tap[phase], actual_tap[phase], step);
 
 		            //protection in case of no current measurement or idling of the transformer
@@ -391,14 +402,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		                    }
 		                }
 		            }
-		           //protection in case of network transient - PLL overshoot increases rapidly
+
+
+
 		            else
 		            {
-		                if (state_machine[phase] == 0 && (q_error < 0.01))
+		                //If everything is ok - Tap set from ADC measurement is taken
+		            	if (state_machine[phase] == 0 && (q_error < 0.01))
 		                {
 		                    Loadtype[phase] = LOAD_DET(voltage_phase[phase], current_phase[phase]);
 		                    set_actual_tap[phase] = Global_set_actual_tap;
 		                }
+		                //protection in case of network transient - PLL overshoot increases rapidly
 		                else if (state_machine[phase] == 1 && (q_error >= 0.01))
 		                {
 		                    set_actual_tap[phase] = actual_tap[phase];
@@ -406,6 +421,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		                    tppz[phase].Tap_select[actual_tap[phase]].Tap_up = ON;
 		                    state_machine[phase] = 0;
 		                }
+		           //************************************
+		           //End of protections
+
 
 		                //*************************************************************************************************//
 						//BASE ALGORITHM STARTS HERE
