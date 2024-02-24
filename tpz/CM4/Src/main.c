@@ -22,11 +22,10 @@
 #include "dma.h"
 #include "tim.h"
 #include "usart.h"
-#include "gpio.h"
-#include "MRB_TRIGONOMETRIC_LIB.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "MRB_TRIGONOMETRIC_LIB.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,14 +63,17 @@ unsigned int CM4_cycles_base_algo_task;
 unsigned int CM4_cycles_Modbus_task;
 unsigned int CM4_cycles_DAC_task;
 unsigned int CM4_cycles_PWM_task;
-uint16_t DAC_Output[2] = {0,4095};
-uint8_t MODBUS_BUFFER[20];  //32bits for 4 bytes from UART -> remote control
 
-double alfa_sin_dac;
-double sin_emulated_double;
+float alfa_sin_dac;
+float sin_emulated_double;
 double time_s;
 unsigned int alfa_sin_decimal_pwm;
 unsigned int alfa_sin_decimal_dac;
+
+uint16_t DAC_Output[2] = {0,0};
+uint8_t MODBUS_BUFFER[20];  //32bits for 4 bytes from UART -> remote control
+
+
 
 volatile uint32_t *memory_address = (uint32_t *)0x38000000;
 volatile uint32_t *memory_address2 = (uint32_t *)0x38000004;
@@ -120,23 +122,25 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_DMA_Init();
-  MX_GPIO_Init();
   MX_TIM7_Init();
   MX_TIM14_Init();
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
   MX_DAC1_Init();
   MX_TIM1_Init();
+  MX_TIM15_Init();
   /* USER CODE BEGIN 2 */
   HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
   HAL_DAC_Start(&hdac1, DAC_CHANNEL_2);
 
+  HAL_TIM_Base_Start_IT(&htim15);
   HAL_TIM_Base_Start_IT(&htim14);
   HAL_TIM_Base_Start_IT(&htim7);
 
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
-
+  // MANUAL INITATE OF GPIO PERIPHAL - STM32 BUG? - it doesn't initialize on CM4
+  MX_GPIO_Init();
 
   /* USER CODE END 2 */
 
@@ -155,17 +159,19 @@ int main(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	//5Hz timer - LED, counting P,Q,S, SRAM data exchange
-	if(htim->Instance == TIM13)
+	if(htim->Instance == TIM15)
 	{
 		CM4_cycles_base_algo_task++;
 		data_read  = *memory_address;
+		data_read2  = *memory_address2;
+		 HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 	}
 	//20kHz - DAC generator
 	if(htim->Instance == TIM7)
 	{
 		time_s = time_s+ 0.00005;
 		alfa_sin_dac = time_s * 50 * 2* MRB_TL_PI;
-		if(alfa_sin_dac > 2*MRB_TL_PI) alfa_sin_dac = 0;
+		if(alfa_sin_dac > 2*MRB_TL_PI) time_s = 0;
 		sin_emulated_double = sin_f(alfa_sin_dac);
 		alfa_sin_decimal_pwm = floor((sin_emulated_double+1)*500);
 		alfa_sin_decimal_dac = floor((sin_emulated_double+1)*4095);
@@ -189,7 +195,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	if(huart->Instance == USART1)
 	{
 		//Tu ma byc pointer czy nie???
-	HAL_UART_Receive_IT(&huart1, MODBUS_BUFFER, 4);
+	//HAL_UART_Receive_IT(&huart1, MODBUS_BUFFER, 4);
 	}
 }
 /* USER CODE END 4 */

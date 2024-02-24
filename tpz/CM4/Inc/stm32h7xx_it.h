@@ -60,6 +60,7 @@ void USART3_IRQHandler(void);
 void TIM8_TRG_COM_TIM14_IRQHandler(void);
 void TIM7_IRQHandler(void);
 void CM7_SEV_IRQHandler(void);
+void TIM15_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
