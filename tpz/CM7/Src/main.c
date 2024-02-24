@@ -96,10 +96,13 @@ Three_phase_handler I_PLL;
 double PLL_theta_I;
 float PID_PLL_I_output = 0;
 //EMULATION VARIABLES------------------------
+
+#define EMULATION 1
+//#define EMULATION_SIMPLE 2
 double current_phase_emulated[3] = {30,150,270}, voltage_phase_emulated[3]={0,120,240};
 double actual_current[3], actual_voltage[3];
-double theta_U_emulated[3] = {0, MRB_TL_PI_BY_3*2, MRB_TL_PI_BY_3*4};
-double theta_I_emulated[3] = {0+COS_PHI_SHIFT, MRB_TL_PI_BY_3*2+COS_PHI_SHIFT, MRB_TL_PI_BY_3*4+COS_PHI_SHIFT};
+double theta_U_emulated[3] = {0, PI_BY_3*4, PI_BY_3*2 };
+double theta_I_emulated[3] = {0+COS_PHI_SHIFT, PI_BY_3*4+COS_PHI_SHIFT,PI_BY_3*2+COS_PHI_SHIFT};
 
 volatile uint32_t *memory_address = (uint32_t *)0x38000000;
 volatile uint32_t *memory_address2 = (uint32_t *)0x38000004;
@@ -131,6 +134,8 @@ unsigned int cycles_base_algo_task = 0;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+
+	//PID calibration
 	PID_Voltage_PLL.KP = PID_1_KP;
 	PID_Voltage_PLL.KI = PID_1_KI;
 	PID_Voltage_PLL.KD = PID_1_KD;
@@ -316,7 +321,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//TIM13 interrupt has lowest priority, so if this part has been done, everything is done.
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
 		cycles_master_task++;
-		*memory_address2 = cycles_base_algo_task;
+		*memory_address2 = cycles_master_task;
 		//Tap set from measter read
 		//*************************//
 		HAL_ADC_Start(&hadc3);
@@ -329,7 +334,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 
 		//Diagnostic data exchange with CM4
-
+		//PID calibration
+		PID_Voltage_PLL.KP = PID_1_KP;
+		PID_Voltage_PLL.KI = PID_1_KI;
+		PID_Voltage_PLL.KD = PID_1_KD;
 
 	}
 
@@ -339,33 +347,38 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 
 		cycles_base_algo_task++;
-		*memory_address = cycles_base_algo_task;
+		*memory_address = ADC_main_tap;
 		//*************************************************************************************************//
 		//EMULATION - TESTS AND DEBUGGING
 		//*************************************************************************************************//
 		for(int i= 0; i<3; i++)
 		{
-			theta_U_emulated[i] = theta_U_emulated[i]+MRB_TL_PI*2*0.0001*50;
-			if(theta_U_emulated[i]>MRB_TL_PI*2)theta_U_emulated[i] = 0;
+			theta_U_emulated[i] = theta_U_emulated[i]+PI*2*0.0001*50;
+			if(theta_U_emulated[i]>PI*2)theta_U_emulated[i] = 0;
 		}
 		for(int i = 0; i<3; i++)
 		{
-			theta_I_emulated[i] = theta_I_emulated[i]+MRB_TL_PI*2*0.0001*50;
-			if(theta_I_emulated[i]>MRB_TL_PI*2)theta_I_emulated[i] = 0;
+			theta_I_emulated[i] = theta_I_emulated[i]+PI*2*0.0001*50;
+			if(theta_I_emulated[i]>PI*2)theta_I_emulated[i] = 0;
 		}
 
 		actual_current[0] = 100*sin_f(theta_I_emulated[0]);
 		actual_current[1] = 117*sin_f(theta_I_emulated[1]);
 		actual_current[2] = 83*sin_f(theta_I_emulated[2]);
+		//actual_current[2] = ADC_raw_current[2] *
 		actual_voltage[0] = 311*sin_f(theta_U_emulated[0]);
 		actual_voltage[1] = 312*sin_f(theta_U_emulated[1]);
 		actual_voltage[2] = 312*sin_f(theta_U_emulated[2]);
 
+		#ifdef EMULATION_SIMPLE
 		voltage_phase_emulated[0] =  voltage_phase_emulated[0] + 360*50*0.0001;
 		current_phase_emulated[0]=  current_phase_emulated[0] + 360*50*0.0001;
 		if(voltage_phase_emulated[0]>360) voltage_phase_emulated[0] = voltage_phase_emulated[0] - 360;
 		if(current_phase_emulated[0]>360) current_phase_emulated[0] = current_phase_emulated[0] - 360;
-
+		voltage_phase[0] = voltage_phase_emulated[0]; // input 1 must be voltage
+		current_phase[0] = current_phase_emulated[0]; // input 2 must be current
+		current_RMS[0] = 50;
+		#endif
 
 
 		//*************************************************************************************************//
@@ -375,17 +388,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//*************************************************************************************************//
 		//MEASUREMENTS AND PLL ALGORITHM
 		//*************************************************************************************************//
-		q_error = 0;
-		//voltage_phase[0] = voltage_phase_emulated[0]; // input 1 must be voltage
-		//current_phase[0] = current_phase_emulated[0]; // input 2 must be current
-		//current_RMS[0] = 50;
+
+
 		//*************ONE PHASE PLL - CURRENTS****************
 		current_RMS[0] = RMS(actual_current[0], &PLL_current_phase1);
 		I_PLL_1p.phase_A = PLL_1phase(actual_current[0], current_RMS[0], &PLL_current_phase1);
-		//current_RMS[1] = RMS(actual_current[1], &PLL_current_phase1);
-		//I_PLL_1p.phase_B = PLL_1phase(actual_current[1], current_RMS[1], &PLL_current_phase2);
-		//current_RMS[2] = RMS(actual_current[2], &PLL_current_phase1);
-		//I_PLL_1p.phase_B = PLL_1phase(actual_current[2], current_RMS[2], &PLL_current_phase3);
+		current_RMS[1] = RMS(actual_current[1], &PLL_current_phase1);
+		I_PLL_1p.phase_B = PLL_1phase(actual_current[1], current_RMS[1], &PLL_current_phase2);
+		current_RMS[2] = RMS(actual_current[2], &PLL_current_phase1);
+		I_PLL_1p.phase_C = PLL_1phase(actual_current[2], current_RMS[2], &PLL_current_phase3);
 
 		//*************THREE PHASE PLL - VOLTAGES****************
 		alfabeta_PLL_U = AlfaBeta(actual_voltage[0], actual_voltage[1], actual_voltage[2]);
@@ -394,10 +405,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		PLL_theta_U = Integrator(PID_PLL_U_output, -2*PI, 2*PI, 1);
 		U_PLL = PLL_3phase(PLL_theta_U);
 		//*************THREE PHASE PLL - Currents - Grid stability****************
-
+		q_error = 0;
 		//**************Phases assigned for algorithm
 		voltage_phase[0] = U_PLL.phase_A * RAD_TO_DEGREE_CONV;
 		current_phase[0] = I_PLL_1p.phase_A * RAD_TO_DEGREE_CONV;
+		voltage_phase[1] = U_PLL.phase_B * RAD_TO_DEGREE_CONV;
+		current_phase[1] = I_PLL_1p.phase_B * RAD_TO_DEGREE_CONV;
+		voltage_phase[2] = U_PLL.phase_C * RAD_TO_DEGREE_CONV;
+		current_phase[2] = I_PLL_1p.phase_C * RAD_TO_DEGREE_CONV;
 		//*************************************************************************************************//
 		//MEASUREMENTS AND PLL ALGORITHM
 		//*************************************************************************************************//

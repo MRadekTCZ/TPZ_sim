@@ -15,7 +15,7 @@
 #define PI_BY_3 1.047197
 #define ONE_BY_SQRT2 0.70711
 #define PID_1_KP 50
-#define PID_1_KI 1000
+#define PID_1_KI 500
 #define PID_1_KD 0.0
 #define SAMPLE_FREQ 10000
 #define SAMPLE_PRERIOD 0.0001

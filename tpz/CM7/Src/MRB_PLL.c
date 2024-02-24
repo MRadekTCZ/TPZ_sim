@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include "MRB_PLL.h"
-
+#include "MRB_TRIGONOMETRIC_LIB.h"
 /******************************************
 THREE PHASE FUNCTIONS
 *******************************************/
@@ -49,11 +49,10 @@ float PID_Regulator(double error, PID_handler* pid)
 float Integrator(double input_signal, double THRESHOLD_LOW, double THRESHOLD_HIGH, unsigned int handler)
 {
 	static float integrated_s[16];
-	if(integrated_s[handler] < THRESHOLD_HIGH)
+	if( (integrated_s[handler] < THRESHOLD_HIGH) && (integrated_s[handler] > THRESHOLD_LOW) )
 	{
 	integrated_s[handler] = integrated_s[handler] + input_signal*SAMPLE_PRERIOD;
 	}
-
 	else integrated_s[handler] = 0;
 
 	return integrated_s[handler];
@@ -63,10 +62,9 @@ struct ThreePhaseSystem PLL_3phase(float theta_main)
 {
 	struct ThreePhaseSystem PLL_three_phase;
 	PLL_three_phase.phase_A = theta_main;
-	PLL_three_phase.phase_B = theta_main + 2*PI_BY_3;
-	PLL_three_phase.phase_C = theta_main + 4*PI_BY_3;
+	PLL_three_phase.phase_B = theta_main + 4*PI_BY_3;
+	PLL_three_phase.phase_C = theta_main + 2*PI_BY_3;
 	if(PLL_three_phase.phase_B > 2*PI) PLL_three_phase.phase_B = PLL_three_phase.phase_B - 2*PI;
-	PLL_three_phase.phase_B = theta_main + 2*PI_BY_3;
 	if(PLL_three_phase.phase_C > 2*PI) PLL_three_phase.phase_C = PLL_three_phase.phase_C - 2*PI;
 
 	return PLL_three_phase;
