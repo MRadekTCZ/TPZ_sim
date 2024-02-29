@@ -1,0 +1,6393 @@
+Plecs {
+  Name          "Master_simple_3"
+  Version       "4.7"
+  CircuitModel  "DiscStateSpace"
+  StartTime     "0.0"
+  TimeSpan      "6"
+  Timeout       ""
+  Solver        "FixedStepDiscrete"
+  MaxStep       "1e-3"
+  InitStep      "-1"
+  FixedStep     "1e-5"
+  Refine        "1"
+  ZCStepSize    "1e-9"
+  RelTol        "1e-3"
+  AbsTol        "-1"
+  TurnOnThreshold "0"
+  SyncFixedStepTasks "2"
+  UseSingleCommonBaseRate "2"
+  LossVariableLimitExceededMsg "3"
+  NegativeSwitchLossMsg "3"
+  DivisionByZeroMsg "3"
+  StiffnessDetectionMsg "2"
+  MaxConsecutiveZCs "1000"
+  AlgebraicLoopWithStateMachineMsg "3"
+  AssertionAction "1"
+  InitializationCommands "Ts=0.00001\n\n\n\nU1n=400*1.414;\nR1=0.017344;\nL1=0"
+"\n\nR2all=0.006856;\nL2all=0\n\nLm=1128.4/2/3.14/50; \nRfe=683.76;\n\nL2_tap="
+"0\nR2_tap=0.000629;\n\nRobc=20;\nLobc = 0.065;\n\nt0=0.01;\nt1=0.0205;\nt2=0."
+"020;\nu2n_delta=17*sqrt(2)/sqrt(3);\nRon=0.002;\nVf=0.6;"
+  InitialState  "1"
+  SystemState   ""
+  TaskingMode   "1"
+  TaskConfigurations ""
+  CodeGenParameterInlining "2"
+  CodeGenFloatingPointFormat "2"
+  CodeGenAbsTimeUsageMsg "3"
+  CodeGenBaseName ""
+  CodeGenOutputDir ""
+  CodeGenExtraOpts ""
+  CodeGenTarget "Generic"
+  CodeGenTargetSettings ""
+  ExtendedMatrixPrecision "1"
+  MatrixSignificanceCheck "2"
+  EnableStateSpaceSplitting "2"
+  DisplayStateSpaceSplitting "1"
+  DiscretizationMethod "2"
+  ExternalModeSettings ""
+  AlgebraicLoopMethod "1"
+  AlgebraicLoopTolerance "1e-6"
+  ScriptsDialogGeometry ""
+  ScriptsDialogSplitterPos "0"
+  Schematic {
+    Location      [0, 23; 1707, 873]
+    ZoomFactor    0.667275
+    SliderPosition [0, 0]
+    ShowBrowser   off
+    BrowserWidth  100
+    Component {
+      Type          Transformer
+      Name          "Tr2"
+      Show          on
+      Position      [810, 500]
+      Direction     right
+      Flipped       on
+      LabelPosition south
+      Parameter {
+        Variable      "Windings"
+        Value         "[1 1]"
+        Show          off
+      }
+      Parameter {
+        Variable      "n"
+        Value         "[400 440]"
+        Show          off
+      }
+      Parameter {
+        Variable      "Polarity"
+        Value         "+"
+        Show          off
+      }
+      Parameter {
+        Variable      "Lm"
+        Value         "inf"
+        Show          off
+      }
+      Parameter {
+        Variable      "im0"
+        Value         "0"
+        Show          off
+      }
+    }
+    Component {
+      Type          Resistor
+      Name          "R1"
+      Show          on
+      Position      [645, 435]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "R"
+        Value         "0.02"
+        Show          off
+      }
+    }
+    Component {
+      Type          Inductor
+      Name          "L1"
+      Show          on
+      Position      [575, 435]
+      Direction     left
+      Flipped       off
+      LabelPosition north
+      Parameter {
+        Variable      "L"
+        Value         "L1"
+        Show          off
+      }
+      Parameter {
+        Variable      "i_init"
+        Value         "0"
+        Show          off
+      }
+    }
+    Component {
+      Type          Inductor
+      Name          "L2"
+      Show          on
+      Position      [860, 435]
+      Direction     left
+      Flipped       off
+      LabelPosition north
+      Parameter {
+        Variable      "L"
+        Value         "L2all"
+        Show          off
+      }
+      Parameter {
+        Variable      "i_init"
+        Value         "0"
+        Show          off
+      }
+    }
+    Component {
+      Type          Resistor
+      Name          "R2"
+      Show          on
+      Position      [930, 435]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "R"
+        Value         "R2all"
+        Show          off
+      }
+    }
+    Component {
+      Type          Resistor
+      Name          "R3"
+      Show          on
+      Position      [760, 530]
+      Direction     up
+      Flipped       off
+      LabelPosition east
+      Parameter {
+        Variable      "R"
+        Value         "Rfe"
+        Show          off
+      }
+    }
+    Component {
+      Type          Inductor
+      Name          "L3"
+      Show          on
+      Position      [715, 530]
+      Direction     down
+      Flipped       off
+      LabelPosition west
+      Parameter {
+        Variable      "L"
+        Value         "Lm"
+        Show          off
+      }
+      Parameter {
+        Variable      "i_init"
+        Value         "0"
+        Show          off
+      }
+    }
+    Component {
+      Type          Voltmeter
+      Name          "V_load"
+      Show          on
+      Position      [1530, 540]
+      Direction     up
+      Flipped       off
+      LabelPosition west
+    }
+    Component {
+      Type          Ammeter
+      Name          "A_load"
+      Show          on
+      Position      [1635, 460]
+      Direction     left
+      Flipped       off
+      LabelPosition south
+    }
+    Component {
+      Type          Subsystem
+      Name          "PPZ"
+      Show          on
+      Position      [1295, 335]
+      Direction     up
+      Flipped       off
+      LabelPosition none
+      Frame         [-30, -30; 30, 30]
+      SampleTime    "-1"
+      CodeGenDiscretizationMethod "2"
+      CodeGenTarget "Generic"
+      MaskDisplayLang "2"
+      MaskIconFrame on
+      MaskIconOpaque off
+      MaskIconRotates on
+      Terminal {
+        Type          Input
+        Position      [-30, 10]
+        Direction     left
+      }
+      Terminal {
+        Type          Port
+        Position      [-20, -35]
+        Direction     up
+      }
+      Terminal {
+        Type          Port
+        Position      [-20, 35]
+        Direction     down
+      }
+      Schematic {
+        Location      [0, 27; 1707, 872]
+        ZoomFactor    1
+        SliderPosition [0, 1406]
+        ShowBrowser   off
+        BrowserWidth  100
+        Component {
+          Type          Thyristor
+          Name          "Thy1"
+          Show          on
+          Position      [825, 2595]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "Vf"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "Ron"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy2"
+          Show          on
+          Position      [825, 2540]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "Vf"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "Ron"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy3"
+          Show          on
+          Position      [825, 2430]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "Vf"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "Ron"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy4"
+          Show          on
+          Position      [820, 2380]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "Vf"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "Ron"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac1"
+          Show          on
+          Position      [720, 2535]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L4"
+          Show          on
+          Position      [605, 2560]
+          Direction     left
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R4"
+          Show          on
+          Position      [675, 2560]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy5"
+          Show          on
+          Position      [815, 2270]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "Vf"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "Ron"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy6"
+          Show          on
+          Position      [815, 2215]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "Vf"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "Ron"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L5"
+          Show          on
+          Position      [720, 2495]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R5"
+          Show          on
+          Position      [720, 2450]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L7"
+          Show          on
+          Position      [720, 2325]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R8"
+          Show          on
+          Position      [720, 2265]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac2"
+          Show          on
+          Position      [720, 2370]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy7"
+          Show          on
+          Position      [815, 2105]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "Vf"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "Ron"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy8"
+          Show          on
+          Position      [815, 2050]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "Vf"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "Ron"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L8"
+          Show          on
+          Position      [720, 2160]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R9"
+          Show          on
+          Position      [720, 2100]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac3"
+          Show          on
+          Position      [720, 2205]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy9"
+          Show          on
+          Position      [820, 1955]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy10"
+          Show          on
+          Position      [820, 1900]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L9"
+          Show          on
+          Position      [720, 2010]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R10"
+          Show          on
+          Position      [720, 1950]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac4"
+          Show          on
+          Position      [720, 2055]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap5"
+          Show          on
+          Position      [895, 1925]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap4"
+          Show          on
+          Position      [905, 2070]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap3"
+          Show          on
+          Position      [905, 2240]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap2"
+          Show          on
+          Position      [910, 2400]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap1"
+          Show          on
+          Position      [915, 2560]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy11"
+          Show          on
+          Position      [820, 1805]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy12"
+          Show          on
+          Position      [820, 1750]
+          Direction     left
+          Flipped       off
+          LabelPosition northwest
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L10"
+          Show          on
+          Position      [720, 1860]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R11"
+          Show          on
+          Position      [720, 1800]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac5"
+          Show          on
+          Position      [720, 1905]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap6"
+          Show          on
+          Position      [895, 1775]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy13"
+          Show          on
+          Position      [820, 1655]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy14"
+          Show          on
+          Position      [820, 1600]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L11"
+          Show          on
+          Position      [720, 1710]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R12"
+          Show          on
+          Position      [720, 1650]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac6"
+          Show          on
+          Position      [720, 1755]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap7"
+          Show          on
+          Position      [895, 1625]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy15"
+          Show          on
+          Position      [820, 1495]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy16"
+          Show          on
+          Position      [820, 1440]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L12"
+          Show          on
+          Position      [720, 1550]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R13"
+          Show          on
+          Position      [720, 1490]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac7"
+          Show          on
+          Position      [720, 1595]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap8"
+          Show          on
+          Position      [895, 1465]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy17"
+          Show          on
+          Position      [820, 1335]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy18"
+          Show          on
+          Position      [820, 1280]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L13"
+          Show          on
+          Position      [720, 1390]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R14"
+          Show          on
+          Position      [720, 1330]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac8"
+          Show          on
+          Position      [720, 1435]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap9"
+          Show          on
+          Position      [895, 1305]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy19"
+          Show          on
+          Position      [820, 1170]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy20"
+          Show          on
+          Position      [820, 1115]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L14"
+          Show          on
+          Position      [720, 1225]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R15"
+          Show          on
+          Position      [720, 1165]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac9"
+          Show          on
+          Position      [720, 1275]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap10"
+          Show          on
+          Position      [895, 1140]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          CScript
+          Name          "C-Script"
+          Show          on
+          Position      [385, 1880]
+          Direction     up
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "DialogGeometry"
+            Value         "[960 529 623 360]"
+            Show          off
+          }
+          Parameter {
+            Variable      "NumInputs"
+            Value         "1"
+            Show          off
+          }
+          Parameter {
+            Variable      "NumOutputs"
+            Value         "16"
+            Show          off
+          }
+          Parameter {
+            Variable      "NumContStates"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "NumDiscStates"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "NumZCSignals"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "DirectFeedthrough"
+            Value         "1"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ts"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Parameters"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "LangStandard"
+            Value         "2"
+            Show          off
+          }
+          Parameter {
+            Variable      "GnuExtensions"
+            Value         "1"
+            Show          off
+          }
+          Parameter {
+            Variable      "RuntimeCheck"
+            Value         "2"
+            Show          off
+          }
+          Parameter {
+            Variable      "Declarations"
+            Value         "\n"
+"short int tap;"
+            Show          off
+          }
+          Parameter {
+            Variable      "StartFcn"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "OutputFcn"
+            Value         "tap = InputSignal(0,0);\n"
+"for(int i=0;i<10;i++)\n"
+"{\n"
+"OutputSignal(0,i) = 0;\n"
+"}\n"
+"OutputSignal(0,tap) = 1;"
+            Show          off
+          }
+          Parameter {
+            Variable      "UpdateFcn"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "DerivativeFcn"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "TerminateFcn"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "StoreCustomStateFcn"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "RestoreCustomStateFcn"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          SignalDemux
+          Name          "Demux"
+          Show          off
+          Position      [440, 1880]
+          Direction     right
+          Flipped       on
+          LabelPosition south
+          Parameter {
+            Variable      "Width"
+            Value         "16"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto"
+          Show          off
+          Position      [545, 1800]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto1"
+          Show          off
+          Position      [505, 1815]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T1"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto2"
+          Show          off
+          Position      [560, 1825]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T2"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto3"
+          Show          off
+          Position      [590, 1835]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T3"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto4"
+          Show          off
+          Position      [565, 1845]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T4"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy21"
+          Show          on
+          Position      [820, 995]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy22"
+          Show          on
+          Position      [820, 940]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L15"
+          Show          on
+          Position      [720, 1050]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R16"
+          Show          on
+          Position      [720, 990]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap11"
+          Show          on
+          Position      [895, 965]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy23"
+          Show          on
+          Position      [820, 845]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy24"
+          Show          on
+          Position      [820, 790]
+          Direction     left
+          Flipped       off
+          LabelPosition northwest
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L16"
+          Show          on
+          Position      [720, 900]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R17"
+          Show          on
+          Position      [720, 840]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac10"
+          Show          on
+          Position      [720, 945]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap12"
+          Show          on
+          Position      [895, 815]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy25"
+          Show          on
+          Position      [820, 695]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy26"
+          Show          on
+          Position      [820, 640]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L17"
+          Show          on
+          Position      [720, 750]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R18"
+          Show          on
+          Position      [720, 690]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac11"
+          Show          on
+          Position      [720, 795]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap13"
+          Show          on
+          Position      [895, 665]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy27"
+          Show          on
+          Position      [820, 535]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy28"
+          Show          on
+          Position      [820, 480]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L18"
+          Show          on
+          Position      [720, 590]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R19"
+          Show          on
+          Position      [720, 530]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac12"
+          Show          on
+          Position      [720, 635]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap14"
+          Show          on
+          Position      [895, 505]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy29"
+          Show          on
+          Position      [820, 375]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy30"
+          Show          on
+          Position      [820, 320]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L19"
+          Show          on
+          Position      [720, 430]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R20"
+          Show          on
+          Position      [720, 370]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac13"
+          Show          on
+          Position      [720, 475]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap15"
+          Show          on
+          Position      [895, 345]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy31"
+          Show          on
+          Position      [820, 210]
+          Direction     right
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Thyristor
+          Name          "Thy32"
+          Show          on
+          Position      [820, 155]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Vf"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Ron"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "s_init"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "thermal"
+            Value         ""
+            Show          off
+          }
+          Parameter {
+            Variable      "Rth"
+            Value         "0"
+            Show          off
+          }
+          Parameter {
+            Variable      "T_init"
+            Value         ""
+            Show          off
+          }
+        }
+        Component {
+          Type          Inductor
+          Name          "L20"
+          Show          on
+          Position      [720, 265]
+          Direction     down
+          Flipped       off
+          LabelPosition west
+          Parameter {
+            Variable      "L"
+            Value         "L2_tap"
+            Show          off
+          }
+          Parameter {
+            Variable      "i_init"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Resistor
+          Name          "R21"
+          Show          on
+          Position      [720, 205]
+          Direction     up
+          Flipped       off
+          LabelPosition east
+          Parameter {
+            Variable      "R"
+            Value         "R2_tap"
+            Show          off
+          }
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac14"
+          Show          on
+          Position      [720, 310]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Ammeter
+          Name          "tap16"
+          Show          on
+          Position      [895, 180]
+          Direction     left
+          Flipped       off
+          LabelPosition south
+        }
+        Component {
+          Type          ACVoltageSource
+          Name          "V_ac15"
+          Show          on
+          Position      [720, 1110]
+          Direction     down
+          Flipped       on
+          LabelPosition east
+          Parameter {
+            Variable      "V"
+            Value         "u2n_delta"
+            Show          off
+          }
+          Parameter {
+            Variable      "w"
+            Value         "2*pi*50"
+            Show          off
+          }
+          Parameter {
+            Variable      "phi"
+            Value         "0"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto5"
+          Show          off
+          Position      [605, 1855]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T5"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto6"
+          Show          off
+          Position      [565, 1865]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T6"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto7"
+          Show          off
+          Position      [560, 1875]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T7"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto8"
+          Show          off
+          Position      [590, 1885]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T8"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto9"
+          Show          off
+          Position      [565, 1895]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T9"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto10"
+          Show          off
+          Position      [605, 1905]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T10"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto12"
+          Show          off
+          Position      [560, 1915]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T11"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto13"
+          Show          off
+          Position      [590, 1925]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T12"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto14"
+          Show          off
+          Position      [565, 1935]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T13"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto15"
+          Show          off
+          Position      [605, 1945]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T14"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Goto
+          Name          "Goto16"
+          Show          off
+          Position      [565, 1955]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T15"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From"
+          Show          off
+          Position      [735, 125]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T15"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From1"
+          Show          off
+          Position      [755, 2510]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T0"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From2"
+          Show          off
+          Position      [760, 2330]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T1"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From3"
+          Show          off
+          Position      [755, 2175]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T2"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From4"
+          Show          off
+          Position      [760, 2015]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T3"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From5"
+          Show          off
+          Position      [755, 1865]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T4"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From6"
+          Show          off
+          Position      [760, 1715]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T5"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From7"
+          Show          off
+          Position      [765, 1570]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T6"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From8"
+          Show          off
+          Position      [760, 1405]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T7"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From9"
+          Show          off
+          Position      [755, 1240]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T8"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From10"
+          Show          off
+          Position      [755, 1085]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T9"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From11"
+          Show          off
+          Position      [765, 910]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T10"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From12"
+          Show          off
+          Position      [760, 750]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T11"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From13"
+          Show          off
+          Position      [760, 610]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T12"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From14"
+          Show          off
+          Position      [760, 445]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T13"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          From
+          Name          "From15"
+          Show          off
+          Position      [765, 285]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Tag"
+            Value         "T14"
+            Show          off
+          }
+          Parameter {
+            Variable      "Visibility"
+            Value         "1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Input
+          Name          "tapset"
+          Show          on
+          Position      [320, 1880]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Index"
+            Value         "1"
+            Show          on
+          }
+          Parameter {
+            Variable      "Width"
+            Value         "-1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Port
+          Name          "U1"
+          Show          on
+          Position      [530, 2560]
+          Direction     right
+          Flipped       off
+          LabelPosition south
+          Parameter {
+            Variable      "Index"
+            Value         "2"
+            Show          on
+          }
+          Parameter {
+            Variable      "Width"
+            Value         "-1"
+            Show          off
+          }
+        }
+        Component {
+          Type          Port
+          Name          "U2"
+          Show          on
+          Position      [1055, 2560]
+          Direction     left
+          Flipped       off
+          LabelPosition north
+          Parameter {
+            Variable      "Index"
+            Value         "3"
+            Show          on
+          }
+          Parameter {
+            Variable      "Width"
+            Value         "-1"
+            Show          off
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L4"
+          SrcTerminal   2
+          DstComponent  "R4"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy2"
+          SrcTerminal   1
+          Points        [785, 2540; 785, 2560]
+          Branch {
+            Points        [785, 2595]
+            DstComponent  "Thy1"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 2560]
+            Branch {
+              DstComponent  "R4"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac1"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L5"
+          SrcTerminal   2
+          DstComponent  "R5"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy3"
+          SrcTerminal   2
+          Points        [780, 2430; 780, 2410]
+          Branch {
+            Points        [780, 2380]
+            DstComponent  "Thy4"
+            DstTerminal   1
+          }
+          Branch {
+            Points        [720, 2410]
+            Branch {
+              DstComponent  "R5"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac2"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L7"
+          SrcTerminal   2
+          DstComponent  "R8"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L7"
+          SrcTerminal   1
+          DstComponent  "V_ac2"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy6"
+          SrcTerminal   1
+          Points        [775, 2215; 775, 2240]
+          Branch {
+            Points        [775, 2270]
+            DstComponent  "Thy5"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 2240]
+            Branch {
+              DstComponent  "R8"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac3"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L8"
+          SrcTerminal   2
+          DstComponent  "R9"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L8"
+          SrcTerminal   1
+          DstComponent  "V_ac3"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy8"
+          SrcTerminal   1
+          Points        [775, 2050; 775, 2075]
+          Branch {
+            Points        [775, 2105]
+            DstComponent  "Thy7"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 2075]
+            Branch {
+              DstComponent  "R9"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac4"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L9"
+          SrcTerminal   2
+          DstComponent  "R10"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L9"
+          SrcTerminal   1
+          DstComponent  "V_ac4"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy10"
+          SrcTerminal   1
+          Points        [780, 1900; 780, 1925]
+          Branch {
+            Points        [780, 1955]
+            DstComponent  "Thy9"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 1925]
+            Branch {
+              DstComponent  "R10"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac5"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L5"
+          SrcTerminal   1
+          DstComponent  "V_ac1"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy10"
+          SrcTerminal   2
+          Points        [860, 1900; 860, 1925]
+          Branch {
+            Points        [860, 1955]
+            DstComponent  "Thy9"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap5"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy8"
+          SrcTerminal   2
+          Points        [855, 2050; 855, 2070]
+          Branch {
+            Points        [855, 2105]
+            DstComponent  "Thy7"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap4"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "tap5"
+          SrcTerminal   2
+          Points        [970, 1925]
+          Branch {
+            Points        [970, 2070]
+            Branch {
+              Points        [970, 2240]
+              Branch {
+                Points        [970, 2400]
+                Branch {
+                  Points        [970, 2560]
+                  Branch {
+                    DstComponent  "tap1"
+                    DstTerminal   2
+                  }
+                  Branch {
+                    DstComponent  "U2"
+                    DstTerminal   1
+                  }
+                }
+                Branch {
+                  DstComponent  "tap2"
+                  DstTerminal   2
+                }
+              }
+              Branch {
+                DstComponent  "tap3"
+                DstTerminal   2
+              }
+            }
+            Branch {
+              DstComponent  "tap4"
+              DstTerminal   2
+            }
+          }
+          Branch {
+            Points        [970, 1775]
+            Branch {
+              DstComponent  "tap6"
+              DstTerminal   2
+            }
+            Branch {
+              Points        [970, 1625]
+              Branch {
+                DstComponent  "tap7"
+                DstTerminal   2
+              }
+              Branch {
+                Points        [970, 1465]
+                Branch {
+                  DstComponent  "tap8"
+                  DstTerminal   2
+                }
+                Branch {
+                  Points        [970, 1305]
+                  Branch {
+                    DstComponent  "tap9"
+                    DstTerminal   2
+                  }
+                  Branch {
+                    Points        [970, 1140]
+                    Branch {
+                      DstComponent  "tap10"
+                      DstTerminal   2
+                    }
+                    Branch {
+                      Points        [970, 965]
+                      Branch {
+                        DstComponent  "tap11"
+                        DstTerminal   2
+                      }
+                      Branch {
+                        Points        [970, 815]
+                        Branch {
+                          DstComponent  "tap12"
+                          DstTerminal   2
+                        }
+                        Branch {
+                          Points        [970, 665]
+                          Branch {
+                            DstComponent  "tap13"
+                            DstTerminal   2
+                          }
+                          Branch {
+                            Points        [970, 505]
+                            Branch {
+                              DstComponent  "tap14"
+                              DstTerminal   2
+                            }
+                            Branch {
+                              Points        [970, 345]
+                              Branch {
+                                DstComponent  "tap15"
+                                DstTerminal   2
+                              }
+                              Branch {
+                                Points        [970, 180]
+                                DstComponent  "tap16"
+                                DstTerminal   2
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy6"
+          SrcTerminal   2
+          Points        [855, 2215; 855, 2240]
+          Branch {
+            Points        [855, 2270]
+            DstComponent  "Thy5"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap3"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy4"
+          SrcTerminal   2
+          Points        [860, 2380; 860, 2400]
+          Branch {
+            Points        [860, 2430]
+            DstComponent  "Thy3"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap2"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy2"
+          SrcTerminal   2
+          Points        [865, 2540; 865, 2560]
+          Branch {
+            Points        [865, 2595]
+            DstComponent  "Thy1"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap1"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L10"
+          SrcTerminal   2
+          DstComponent  "R11"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L10"
+          SrcTerminal   1
+          DstComponent  "V_ac5"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy12"
+          SrcTerminal   1
+          Points        [780, 1750; 780, 1775]
+          Branch {
+            Points        [780, 1805]
+            DstComponent  "Thy11"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 1775]
+            Branch {
+              DstComponent  "R11"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac6"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy12"
+          SrcTerminal   2
+          Points        [860, 1750; 860, 1775]
+          Branch {
+            Points        [860, 1805]
+            DstComponent  "Thy11"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap6"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L11"
+          SrcTerminal   2
+          DstComponent  "R12"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L11"
+          SrcTerminal   1
+          DstComponent  "V_ac6"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy14"
+          SrcTerminal   1
+          Points        [780, 1600; 780, 1625]
+          Branch {
+            Points        [780, 1655]
+            DstComponent  "Thy13"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 1625]
+            Branch {
+              DstComponent  "R12"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac7"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy14"
+          SrcTerminal   2
+          Points        [860, 1600; 860, 1625]
+          Branch {
+            Points        [860, 1655]
+            DstComponent  "Thy13"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap7"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L12"
+          SrcTerminal   2
+          DstComponent  "R13"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L12"
+          SrcTerminal   1
+          DstComponent  "V_ac7"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy16"
+          SrcTerminal   1
+          Points        [780, 1440; 780, 1465]
+          Branch {
+            Points        [780, 1495]
+            DstComponent  "Thy15"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 1465]
+            Branch {
+              DstComponent  "R13"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac8"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy16"
+          SrcTerminal   2
+          Points        [860, 1440; 860, 1465]
+          Branch {
+            Points        [860, 1495]
+            DstComponent  "Thy15"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap8"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L13"
+          SrcTerminal   2
+          DstComponent  "R14"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L13"
+          SrcTerminal   1
+          DstComponent  "V_ac8"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy18"
+          SrcTerminal   1
+          Points        [780, 1280; 780, 1305]
+          Branch {
+            Points        [780, 1335]
+            DstComponent  "Thy17"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 1305]
+            Branch {
+              DstComponent  "R14"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac9"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy18"
+          SrcTerminal   2
+          Points        [860, 1280; 860, 1305]
+          Branch {
+            Points        [860, 1335]
+            DstComponent  "Thy17"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap9"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L14"
+          SrcTerminal   2
+          DstComponent  "R15"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L14"
+          SrcTerminal   1
+          DstComponent  "V_ac9"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy20"
+          SrcTerminal   1
+          Points        [780, 1115; 780, 1140]
+          Branch {
+            Points        [780, 1170]
+            DstComponent  "Thy19"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 1140]
+            Branch {
+              DstComponent  "R15"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac15"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy20"
+          SrcTerminal   2
+          Points        [860, 1115; 860, 1140]
+          Branch {
+            Points        [860, 1170]
+            DstComponent  "Thy19"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap10"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "C-Script"
+          SrcTerminal   2
+          DstComponent  "Demux"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   2
+          Points        [490, 1805; 490, 1800]
+          DstComponent  "Goto"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   3
+          DstComponent  "Goto1"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   4
+          DstComponent  "Goto2"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L15"
+          SrcTerminal   2
+          DstComponent  "R16"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy22"
+          SrcTerminal   1
+          Points        [780, 940; 780, 965]
+          Branch {
+            Points        [780, 995]
+            DstComponent  "Thy21"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 965]
+            Branch {
+              DstComponent  "R16"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac10"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy22"
+          SrcTerminal   2
+          Points        [860, 940; 860, 965]
+          Branch {
+            Points        [860, 995]
+            DstComponent  "Thy21"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap11"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L16"
+          SrcTerminal   2
+          DstComponent  "R17"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L16"
+          SrcTerminal   1
+          DstComponent  "V_ac10"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy24"
+          SrcTerminal   1
+          Points        [780, 790; 780, 815]
+          Branch {
+            Points        [780, 845]
+            DstComponent  "Thy23"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 815]
+            Branch {
+              DstComponent  "R17"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac11"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy24"
+          SrcTerminal   2
+          Points        [860, 790; 860, 815]
+          Branch {
+            Points        [860, 845]
+            DstComponent  "Thy23"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap12"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L17"
+          SrcTerminal   2
+          DstComponent  "R18"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L17"
+          SrcTerminal   1
+          DstComponent  "V_ac11"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy26"
+          SrcTerminal   1
+          Points        [780, 640; 780, 665]
+          Branch {
+            Points        [780, 695]
+            DstComponent  "Thy25"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 665]
+            Branch {
+              DstComponent  "R18"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac12"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy26"
+          SrcTerminal   2
+          Points        [860, 640; 860, 665]
+          Branch {
+            Points        [860, 695]
+            DstComponent  "Thy25"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap13"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L18"
+          SrcTerminal   2
+          DstComponent  "R19"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L18"
+          SrcTerminal   1
+          DstComponent  "V_ac12"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy28"
+          SrcTerminal   1
+          Points        [780, 480; 780, 505]
+          Branch {
+            Points        [780, 535]
+            DstComponent  "Thy27"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 505]
+            Branch {
+              DstComponent  "R19"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac13"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy28"
+          SrcTerminal   2
+          Points        [860, 480; 860, 505]
+          Branch {
+            Points        [860, 535]
+            DstComponent  "Thy27"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap14"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L19"
+          SrcTerminal   2
+          DstComponent  "R20"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L19"
+          SrcTerminal   1
+          DstComponent  "V_ac13"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy30"
+          SrcTerminal   1
+          Points        [780, 320; 780, 345]
+          Branch {
+            Points        [780, 375]
+            DstComponent  "Thy29"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 345]
+            Branch {
+              DstComponent  "R20"
+              DstTerminal   1
+            }
+            Branch {
+              DstComponent  "V_ac14"
+              DstTerminal   2
+            }
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy30"
+          SrcTerminal   2
+          Points        [860, 320; 860, 345]
+          Branch {
+            Points        [860, 375]
+            DstComponent  "Thy29"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap15"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L20"
+          SrcTerminal   2
+          DstComponent  "R21"
+          DstTerminal   2
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L20"
+          SrcTerminal   1
+          DstComponent  "V_ac14"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy32"
+          SrcTerminal   1
+          Points        [780, 155; 780, 180]
+          Branch {
+            Points        [780, 210]
+            DstComponent  "Thy31"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [720, 180]
+            DstComponent  "R21"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "Thy32"
+          SrcTerminal   2
+          Points        [860, 155; 860, 180]
+          Branch {
+            Points        [860, 210]
+            DstComponent  "Thy31"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "tap16"
+            DstTerminal   1
+          }
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "L15"
+          SrcTerminal   1
+          DstComponent  "V_ac15"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   5
+          DstComponent  "Goto3"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   6
+          DstComponent  "Goto4"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   7
+          DstComponent  "Goto5"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   8
+          DstComponent  "Goto6"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   11
+          DstComponent  "Goto9"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   12
+          DstComponent  "Goto10"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   10
+          DstComponent  "Goto8"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   9
+          DstComponent  "Goto7"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   14
+          DstComponent  "Goto13"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   15
+          DstComponent  "Goto14"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   17
+          DstComponent  "Goto16"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   16
+          DstComponent  "Goto15"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "Demux"
+          SrcTerminal   13
+          DstComponent  "Goto12"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From"
+          SrcTerminal   1
+          Points        [755, 125]
+          Branch {
+            DstComponent  "Thy32"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [755, 240]
+            DstComponent  "Thy31"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From1"
+          SrcTerminal   1
+          Points        [770, 2510]
+          Branch {
+            DstComponent  "Thy2"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [770, 2625]
+            DstComponent  "Thy1"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From2"
+          SrcTerminal   1
+          Points        [780, 2330]
+          Branch {
+            Points        [830, 2330]
+            DstComponent  "Thy4"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [780, 2460]
+            DstComponent  "Thy3"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From3"
+          SrcTerminal   1
+          Points        [770, 2175]
+          Branch {
+            Points        [825, 2175]
+            DstComponent  "Thy6"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [770, 2300]
+            DstComponent  "Thy5"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From4"
+          SrcTerminal   1
+          Points        [780, 2015]
+          Branch {
+            Points        [825, 2015]
+            DstComponent  "Thy8"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [780, 2135]
+            DstComponent  "Thy7"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From5"
+          SrcTerminal   1
+          Points        [800, 1865]
+          Branch {
+            Points        [830, 1865]
+            DstComponent  "Thy10"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [800, 1985]
+            DstComponent  "Thy9"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From6"
+          SrcTerminal   1
+          Points        [785, 1715]
+          Branch {
+            Points        [830, 1715]
+            DstComponent  "Thy12"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [785, 1835]
+            DstComponent  "Thy11"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From7"
+          SrcTerminal   1
+          Points        [780, 1570]
+          Branch {
+            DstComponent  "Thy14"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [780, 1685]
+            DstComponent  "Thy13"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From8"
+          SrcTerminal   1
+          Points        [775, 1405]
+          Branch {
+            Points        [830, 1405]
+            DstComponent  "Thy16"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [775, 1525]
+            DstComponent  "Thy15"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From9"
+          SrcTerminal   1
+          Points        [775, 1240]
+          Branch {
+            Points        [830, 1240]
+            DstComponent  "Thy18"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [775, 1365]
+            DstComponent  "Thy17"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From10"
+          SrcTerminal   1
+          Points        [775, 1085]
+          Branch {
+            DstComponent  "Thy20"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [775, 1200]
+            DstComponent  "Thy19"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From11"
+          SrcTerminal   1
+          Points        [785, 910]
+          Branch {
+            DstComponent  "Thy22"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [785, 1025]
+            DstComponent  "Thy21"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From12"
+          SrcTerminal   1
+          Points        [785, 750]
+          Branch {
+            Points        [830, 750]
+            DstComponent  "Thy24"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [785, 875]
+            DstComponent  "Thy23"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From13"
+          SrcTerminal   1
+          Points        [785, 610]
+          Branch {
+            DstComponent  "Thy26"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [785, 725]
+            DstComponent  "Thy25"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From14"
+          SrcTerminal   1
+          Points        [775, 445]
+          Branch {
+            Points        [830, 445]
+            DstComponent  "Thy28"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [775, 565]
+            DstComponent  "Thy27"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "From15"
+          SrcTerminal   1
+          Points        [785, 285]
+          Branch {
+            Points        [830, 285]
+            DstComponent  "Thy30"
+            DstTerminal   3
+          }
+          Branch {
+            Points        [785, 405]
+            DstComponent  "Thy29"
+            DstTerminal   3
+          }
+        }
+        Connection {
+          Type          Signal
+          SrcComponent  "tapset"
+          SrcTerminal   1
+          DstComponent  "C-Script"
+          DstTerminal   1
+        }
+        Connection {
+          Type          Wire
+          SrcComponent  "U1"
+          SrcTerminal   1
+          DstComponent  "L4"
+          DstTerminal   1
+        }
+      }
+    }
+    Component {
+      Type          ACVoltageSource
+      Name          "V_ac"
+      Show          on
+      Position      [485, 535]
+      Direction     down
+      Flipped       on
+      LabelPosition east
+      Parameter {
+        Variable      "V"
+        Value         "460/sqrt(3)*sqrt(2)"
+        Show          off
+      }
+      Parameter {
+        Variable      "w"
+        Value         "2*pi*50"
+        Show          off
+      }
+      Parameter {
+        Variable      "phi"
+        Value         "0"
+        Show          off
+      }
+    }
+    Component {
+      Type          Scope
+      Name          "Scope"
+      Show          on
+      Position      [2035, 375]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Location      [0, 27; 1707, 948]
+      State         "AAAA/wAAAAD9AAAAAgAAAAEAAAAAAAAAAPwCAAAAA/sAAAAQAFoAbwBvA"
+"G0AQQByAGUAYQAAAAAA/////wAAAFwA////+wAAABQAUwBhAHYAZQBkAFYAaQBlAHcAcwAAAAAA//"
+"///wAAAGYA////+wAAAAwAVAByAGEAYwBlAHMAAAAAAP////8AAABmAP///wAAAAMAAAAAAAAAAPw"
+"BAAAAAfsAAAAUAEQAYQB0AGEAVwBpAGQAZwBlAHQAAAAAAP////8AAABQAP///wAABqsAAAN+AAAA"
+"BAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAOAFQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAA"
+"AAAAA=="
+      SavedViews    "AAAAAgAAAAA="
+      HeaderState   "AAAA/wAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAL/gMAAAAJAAAAC"
+"AAAAJYAAAAJAAAAlgAAAAIAAACWAAAAAwAAAJYAAAABAAAAlgAAAAYAAACWAAAABwAAAJYAAAAEAA"
+"AAlgAAAAUAAACWAAAAoAAAAAsBAAABAAAAAAAAAAAAAAAAZP////8AAACBAAAAAAAAAAsAAAB8AAA"
+"AAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAA"
+"AAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA"
+"AAkAAAAAQAAAAAAAAPoAAAAACQ="
+      PlotPalettes  "AAAAAQAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAA"
+"AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      Axes          "2"
+      TimeRange     "0"
+      ScrollingMode "1"
+      SingleTimeAxis "1"
+      Open          "0"
+      Ts            "-1"
+      SampleLimit   "0"
+      XAxisLabel    "Time / s"
+      ShowLegend    "1"
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Fourier {
+        SingleXAxis       on
+        AxisLabel         "Frequency / Hz"
+        Scaling           0
+        PhaseDisplay      0
+        ShowFourierLegend off
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+      }
+    }
+    Component {
+      Type          CScript
+      Name          "C-Script"
+      Show          on
+      Position      [890, 100]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "DialogGeometry"
+        Value         "[960 530 623 360]"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumInputs"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumOutputs"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumContStates"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumDiscStates"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumZCSignals"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "DirectFeedthrough"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "Ts"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "Parameters"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "LangStandard"
+        Value         "2"
+        Show          off
+      }
+      Parameter {
+        Variable      "GnuExtensions"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "RuntimeCheck"
+        Value         "2"
+        Show          off
+      }
+      Parameter {
+        Variable      "Declarations"
+        Value         "int tapset;float time;"
+        Show          off
+      }
+      Parameter {
+        Variable      "StartFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "OutputFcn"
+        Value         "time = InputSignal(0,0);\n"
+"if(time<1.0) tapset = 3;\n"
+"if(time>2.0) tapset = 7;\n"
+"if(time>4.0) tapset = 11;\n"
+"\n"
+"\n"
+"OutputSignal(0,0) = tapset;"
+        Show          off
+      }
+      Parameter {
+        Variable      "UpdateFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "DerivativeFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "TerminateFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "StoreCustomStateFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "RestoreCustomStateFcn"
+        Value         ""
+        Show          off
+      }
+    }
+    Component {
+      Type          Clock
+      Name          "Clock"
+      Show          on
+      Position      [750, 100]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+    }
+    Component {
+      Type          CScript
+      Name          "C-Script1"
+      Show          on
+      Position      [785, 295]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "DialogGeometry"
+        Value         "[553 40 1153 871]"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumInputs"
+        Value         "[1 1]"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumOutputs"
+        Value         "[1 2]"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumContStates"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumDiscStates"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumZCSignals"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "DirectFeedthrough"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "Ts"
+        Value         "0.1"
+        Show          off
+      }
+      Parameter {
+        Variable      "Parameters"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "LangStandard"
+        Value         "2"
+        Show          off
+      }
+      Parameter {
+        Variable      "GnuExtensions"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "RuntimeCheck"
+        Value         "2"
+        Show          off
+      }
+      Parameter {
+        Variable      "Declarations"
+        Value         "float tap;\n"
+"int tap_out=7;\n"
+"\n"
+"double Uset;\n"
+"double Uactual;\n"
+"static double U_last;\n"
+"double error;\n"
+"const double ki1 = 0.1;\n"
+"const double kp = 2;\n"
+"const double kd = 0;\n"
+"static double Integral_U;\n"
+"double Dudt;\n"
+"double Prop;\n"
+"#include <math.h>\n"
+"#define PI 3.145\n"
+"#define SAMPLE_TIME 0.1\n"
+"#define DT_TIME 10\n"
+"\n"
+"//KP = 0.1, KI = 0.2, KD  0\n"
+"//KP = 2, KI = 0.1, KD  0"
+        Show          off
+      }
+      Parameter {
+        Variable      "StartFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "OutputFcn"
+        Value         base64 "VXNldCA9IElucHV0U2lnbmFsKDAsMCkvMjIwOwpVYWN0dWFs"
+"ID0gSW5wdXRTaWduYWwoMSwwKS8yMjA7CgoKCi8vUmVndWxhdG9yIHBpZAplcnJvcj1Vc2V0LVVhY"
+"3R1YWw7IC8qIG9ibGljemVuaWUgdWNoeWJ1IHByYWR1IGkyICovCkludGVncmFsX1UrPShraTEqZX"
+"Jyb3IpKlNBTVBMRV9USU1FOyAvKiBjYcWCa293YW5pZSBtZXRvZGEgcHJvc3Rva8SFdMOzdyAocmV"
+"ndWxhdG9yIGNhxYJrdWphY3kqLwppZiAoSW50ZWdyYWxfVT4xLjApIEludGVncmFsX1U9MS4wOyAv"
+"Km9ncmFuaWN6ZW5pZSBjesSZxZtjaSBjYcWCa3VqxIVjZWoqLwppZiAoSW50ZWdyYWxfVTwtMS4wK"
+"SBJbnRlZ3JhbF9VPS0xLjA7IC8qb2dyYW5pY3plbmllIGN6xJnFm2NpIGNhxYJrdWrEhWNlaiovCl"
+"Byb3A9a3AqZXJyb3I7IC8qcmVndWxhdG9yIHByb3BvcmNqb25hbG55Ki8KRHVkdCA9IChVYWN0dWF"
+"sIC0gVV9sYXN0KSpEVF9USU1FKmtkOwp0YXA9UHJvcCsgSW50ZWdyYWxfVSArIER1ZHQ7IC8qcmVn"
+"dWxhdG9yIFBJKi8KCmlmKHRhcDwtMS4wKSB0YXA9LTE7IC8qIG9ncmFuaWN6ZW5pZSAwID08IGdhb"
+"W1hID08IDEqLCB3YXJ0b8WbxIcgKi8KaWYodGFwPjEuMCkgdGFwPTE7IC8qd3Nww7PFgmN6eW5uaW"
+"thIHd5cGXFgm5pZW5pYSBkbGEgcHJ6ZXJ5d2FjemEqLyAKaWYodGFwPjAuMDUpIHRhcF9vdXQgPSB"
+"0YXBfb3V0LTE7CmlmKHRhcDwtMC4wNSkgdGFwX291dCA9IHRhcF9vdXQrMTsKaWYodGFwX291dD4x"
+"NSkgdGFwX291dCA9IDE1OwppZih0YXBfb3V0PDApIHRhcF9vdXQgPSAwOwovKgp0YXBfb3V0ID0gd"
+"GFwKjgrODsKaWYodGFwX291dD4xNSkgdGFwX291dCA9IDE1OwplbHNlIGlmKHRhcF9vdXQ8MCkgdG"
+"FwX291dCA9IDA7CiovCk91dHB1dFNpZ25hbCgwLDApID0gdGFwX291dDsKT3V0cHV0U2lnbmFsKDE"
+"sMCkgPSBlcnJvcjsKT3V0cHV0U2lnbmFsKDEsMSkgPSB0YXA7CgpVX2xhc3QgPSBVYWN0dWFsOw=="
+        Show          off
+      }
+      Parameter {
+        Variable      "UpdateFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "DerivativeFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "TerminateFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "StoreCustomStateFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "RestoreCustomStateFcn"
+        Value         ""
+        Show          off
+      }
+    }
+    Component {
+      Type          Goto
+      Name          "Goto"
+      Show          off
+      Position      [1605, 560]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "Tag"
+        Value         "U_meas"
+        Show          off
+      }
+      Parameter {
+        Variable      "Visibility"
+        Value         "1"
+        Show          off
+      }
+    }
+    Component {
+      Type          From
+      Name          "From"
+      Show          off
+      Position      [500, 320]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "Tag"
+        Value         "U_meas"
+        Show          off
+      }
+      Parameter {
+        Variable      "Visibility"
+        Value         "1"
+        Show          off
+      }
+    }
+    Component {
+      Type          CScript
+      Name          "C-Script2"
+      Show          on
+      Position      [2420, 680]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "DialogGeometry"
+        Value         "[960 530 623 360]"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumInputs"
+        Value         "[1 1]"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumOutputs"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumContStates"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumDiscStates"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "NumZCSignals"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "DirectFeedthrough"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "Ts"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "Parameters"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "LangStandard"
+        Value         "2"
+        Show          off
+      }
+      Parameter {
+        Variable      "GnuExtensions"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "RuntimeCheck"
+        Value         "2"
+        Show          off
+      }
+      Parameter {
+        Variable      "Declarations"
+        Value         "int current_source;float time;"
+        Show          off
+      }
+      Parameter {
+        Variable      "StartFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "OutputFcn"
+        Value         "time = InputSignal(0,0);\n"
+"if(time<1.0) current_source = -1000;\n"
+"\n"
+"if(time>3.0) current_source = 0;\n"
+"if(time>5.0) current_source = 1000;\n"
+"\n"
+"\n"
+"OutputSignal(0,0) = current_source*InputSignal(1,0);;"
+        Show          off
+      }
+      Parameter {
+        Variable      "UpdateFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "DerivativeFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "TerminateFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "StoreCustomStateFcn"
+        Value         ""
+        Show          off
+      }
+      Parameter {
+        Variable      "RestoreCustomStateFcn"
+        Value         ""
+        Show          off
+      }
+    }
+    Component {
+      Type          Clock
+      Name          "Clock1"
+      Show          on
+      Position      [2325, 695]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+    }
+    Component {
+      Type          Resistor
+      Name          "R6"
+      Show          on
+      Position      [2030, 460]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "R"
+        Value         "0.2"
+        Show          off
+      }
+    }
+    Component {
+      Type          Ammeter
+      Name          "A_load1"
+      Show          on
+      Position      [2240, 460]
+      Direction     left
+      Flipped       off
+      LabelPosition south
+    }
+    Component {
+      Type          Scope
+      Name          "Scope1"
+      Show          on
+      Position      [2385, 345]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Location      [0, 27; 1707, 946]
+      State         "AAAA/wAAAAD9AAAAAgAAAAEAAAAAAAAAAPwCAAAAA/sAAAAQAFoAbwBvA"
+"G0AQQByAGUAYQAAAAAA/////wAAAFwA////+wAAABQAUwBhAHYAZQBkAFYAaQBlAHcAcwAAAAAA//"
+"///wAAAGYA////+wAAAAwAVAByAGEAYwBlAHMAAAAAAP////8AAABmAP///wAAAAMAAAAAAAAAAPw"
+"BAAAAAfsAAAAUAEQAYQB0AGEAVwBpAGQAZwBlAHQAAAAAAP////8AAABQAP///wAABqsAAAN8AAAA"
+"BAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAOAFQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAA"
+"AAAAA=="
+      SavedViews    "AAAAAgAAAAA="
+      HeaderState   "AAAA/wAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAL/gMAAAAJAAAAC"
+"AAAAJYAAAAJAAAAlgAAAAIAAACWAAAAAwAAAJYAAAABAAAAlgAAAAYAAACWAAAABwAAAJYAAAAEAA"
+"AAlgAAAAUAAACWAAAAewAAAAsBAAABAAAAAAAAAAAAAAAAZP////8AAACBAAAAAAAAAAsAAABXAAA"
+"AAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAA"
+"AAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA"
+"AAkAAAAAQAAAAAAAAPoAAAAACQ="
+      PlotPalettes  "AAAAAQAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAA"
+"AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      Axes          "2"
+      TimeRange     "0"
+      ScrollingMode "1"
+      SingleTimeAxis "1"
+      Open          "0"
+      Ts            "-1"
+      SampleLimit   "0"
+      XAxisLabel    "Time / s"
+      ShowLegend    "1"
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Fourier {
+        SingleXAxis       on
+        AxisLabel         "Frequency / Hz"
+        Scaling           0
+        PhaseDisplay      0
+        ShowFourierLegend off
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+      }
+    }
+    Component {
+      Type          Voltmeter
+      Name          "Vm1"
+      Show          on
+      Position      [2185, 570]
+      Direction     up
+      Flipped       off
+      LabelPosition west
+    }
+    Component {
+      Type          Reference
+      SrcComponent  "Components/Control/Continuous/Single-Phase PLL"
+      Name          "Single-Phase PLL"
+      Show          on
+      Position      [2235, 860]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Frame         [-40, -20; 40, 20]
+      Parameter {
+        Variable      "type"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "f0"
+        Value         "2*pi*50"
+        Show          off
+      }
+      Parameter {
+        Variable      "Vpk"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "theta0"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "sincos"
+        Value         "2"
+        Show          off
+      }
+      Parameter {
+        Variable      "units"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "contr_design"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "kp"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "ki"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "kANF"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "kSOGI"
+        Value         "1"
+        Show          off
+      }
+      Terminal {
+        Type          Input
+        Position      [-40, 0]
+        Direction     left
+      }
+      Terminal {
+        Type          Output
+        Position      [44, -10]
+        Direction     right
+      }
+      Terminal {
+        Type          Output
+        Position      [44, 0]
+        Direction     right
+      }
+      Terminal {
+        Type          Output
+        Position      [44, 10]
+        Direction     right
+      }
+      Terminal {
+        Type          Output
+        Position      [0, -24]
+        Direction     up
+      }
+    }
+    Component {
+      Type          Trigonometry
+      Name          "Trigonometric\nFunction"
+      Show          on
+      Position      [2325, 785]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "Operator"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "Unit"
+        Value         "1"
+        Show          off
+      }
+    }
+    Component {
+      Type          Scope
+      Name          "Scope2"
+      Show          on
+      Position      [2430, 900]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Location      [0, 27; 1707, 916]
+      State         "AAAA/wAAAAD9AAAAAgAAAAEAAAAAAAAAAPwCAAAAA/sAAAAQAFoAbwBvA"
+"G0AQQByAGUAYQAAAAAA/////wAAAFwA////+wAAABQAUwBhAHYAZQBkAFYAaQBlAHcAcwAAAAAA//"
+"///wAAAGYA////+wAAAAwAVAByAGEAYwBlAHMAAAAAAP////8AAABmAP///wAAAAMAAAAAAAAAAPw"
+"BAAAAAfsAAAAUAEQAYQB0AGEAVwBpAGQAZwBlAHQAAAAAAP////8AAABQAP///wAABqsAAANeAAAA"
+"BAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAOAFQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAA"
+"AAAAA=="
+      SavedViews    "AAAAAgAAAAA="
+      HeaderState   "AAAA/wAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAL/gMAAAAJAAAAC"
+"AAAAJYAAAAJAAAAlgAAAAIAAACWAAAAAwAAAJYAAAABAAAAlgAAAAYAAACWAAAABwAAAJYAAAAEAA"
+"AAlgAAAAUAAACWAAAAewAAAAsBAAABAAAAAAAAAAAAAAAAZP////8AAACBAAAAAAAAAAsAAABXAAA"
+"AAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAA"
+"AAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA"
+"AAkAAAAAQAAAAAAAAPoAAAAACQ="
+      PlotPalettes  "AAAAAQAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAA"
+"AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      Axes          "2"
+      TimeRange     "0"
+      ScrollingMode "1"
+      SingleTimeAxis "1"
+      Open          "0"
+      Ts            "-1"
+      SampleLimit   "0"
+      XAxisLabel    "Time / s"
+      ShowLegend    "1"
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Fourier {
+        SingleXAxis       on
+        AxisLabel         "Frequency / Hz"
+        Scaling           0
+        PhaseDisplay      0
+        ShowFourierLegend off
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+      }
+    }
+    Component {
+      Type          Voltmeter
+      Name          "V_load1"
+      Show          on
+      Position      [435, 590]
+      Direction     up
+      Flipped       off
+      LabelPosition west
+    }
+    Component {
+      Type          Goto
+      Name          "Goto1"
+      Show          off
+      Position      [380, 640]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "Tag"
+        Value         "Grid_PLL"
+        Show          off
+      }
+      Parameter {
+        Variable      "Visibility"
+        Value         "1"
+        Show          off
+      }
+    }
+    Component {
+      Type          CurrentSource
+      Name          "I"
+      Show          on
+      Position      [2340, 560]
+      Direction     down
+      Flipped       on
+      LabelPosition east
+      Parameter {
+        Variable      "DiscretizationBehavior"
+        Value         "2"
+        Show          off
+      }
+      Parameter {
+        Variable      "StateSpaceInlining"
+        Value         "1"
+        Show          off
+      }
+    }
+    Component {
+      Type          Reference
+      SrcComponent  "Components/Control/Filters/RMS Value"
+      Name          "RMS Value"
+      Show          on
+      Position      [1730, 340]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Frame         [-15, -15; 15, 15]
+      Parameter {
+        Variable      "x0"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "ts"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "fs"
+        Value         "50"
+        Show          off
+      }
+      Terminal {
+        Type          Input
+        Position      [-15, 0]
+        Direction     left
+      }
+      Terminal {
+        Type          Output
+        Position      [19, 0]
+        Direction     right
+      }
+    }
+    Component {
+      Type          Reference
+      SrcComponent  "Components/Control/Filters/RMS Value"
+      Name          "RMS Value1"
+      Show          on
+      Position      [1690, 385]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Frame         [-15, -15; 15, 15]
+      Parameter {
+        Variable      "x0"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "ts"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "fs"
+        Value         "50"
+        Show          off
+      }
+      Terminal {
+        Type          Input
+        Position      [-15, 0]
+        Direction     left
+      }
+      Terminal {
+        Type          Output
+        Position      [19, 0]
+        Direction     right
+      }
+    }
+    Component {
+      Type          Scope
+      Name          "Scope3"
+      Show          on
+      Position      [1675, 215]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Location      [0, 27; 1707, 948]
+      State         "AAAA/wAAAAD9AAAAAgAAAAEAAAAAAAAAAPwCAAAAA/sAAAAQAFoAbwBvA"
+"G0AQQByAGUAYQAAAAAA/////wAAAFwA////+wAAABQAUwBhAHYAZQBkAFYAaQBlAHcAcwAAAAAA//"
+"///wAAAGYA////+wAAAAwAVAByAGEAYwBlAHMAAAAAAP////8AAABmAP///wAAAAMAAAAAAAAAAPw"
+"BAAAAAfsAAAAUAEQAYQB0AGEAVwBpAGQAZwBlAHQAAAAAAP////8AAABQAP///wAABqsAAAN+AAAA"
+"BAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAOAFQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAA"
+"AAAAA=="
+      SavedViews    "AAAAAgAAAAA="
+      HeaderState   "AAAA/wAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAL/gMAAAAJAAAAC"
+"AAAAJYAAAAJAAAAlgAAAAIAAACWAAAAAwAAAJYAAAABAAAAlgAAAAYAAACWAAAABwAAAJYAAAAEAA"
+"AAlgAAAAUAAACWAAABKQAAAAsBAAABAAAAAAAAAAAAAAAAZP////8AAACBAAAAAAAAAAsAAAEFAAA"
+"AAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAA"
+"AAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA"
+"AAkAAAAAQAAAAAAAAPoAAAAACQ="
+      PlotPalettes  "AAAAAQAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAA"
+"AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      Axes          "2"
+      TimeRange     "0"
+      ScrollingMode "1"
+      SingleTimeAxis "1"
+      Open          "0"
+      Ts            "-1"
+      SampleLimit   "0"
+      XAxisLabel    "Time / s"
+      ShowLegend    "1"
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Fourier {
+        SingleXAxis       on
+        AxisLabel         "Frequency / Hz"
+        Scaling           0
+        PhaseDisplay      0
+        ShowFourierLegend off
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+      }
+    }
+    Component {
+      Type          From
+      Name          "From1"
+      Show          off
+      Position      [2100, 800]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "Tag"
+        Value         "U_meas"
+        Show          off
+      }
+      Parameter {
+        Variable      "Visibility"
+        Value         "1"
+        Show          off
+      }
+    }
+    Component {
+      Type          SineGenerator
+      Name          "Sine Wave"
+      Show          on
+      Position      [2245, 740]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "Amplitude"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "Bias"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "Frequency"
+        Value         "50*pi*2"
+        Show          off
+      }
+      Parameter {
+        Variable      "Phase"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "Units"
+        Value         "1"
+        Show          off
+      }
+    }
+    Component {
+      Type          Capacitor
+      Name          "C1"
+      Show          on
+      Position      [2105, 565]
+      Direction     down
+      Flipped       on
+      LabelPosition west
+      Parameter {
+        Variable      "C"
+        Value         "1e-7"
+        Show          off
+      }
+      Parameter {
+        Variable      "v_init"
+        Value         "0"
+        Show          off
+      }
+    }
+    Component {
+      Type          Constant
+      Name          "Constant"
+      Show          on
+      Position      [635, 255]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Frame         [-10, -10; 10, 10]
+      Parameter {
+        Variable      "Value"
+        Value         "220"
+        Show          off
+      }
+      Parameter {
+        Variable      "DataType"
+        Value         "10"
+        Show          off
+      }
+    }
+    Component {
+      Type          Scope
+      Name          "Scope4"
+      Show          on
+      Position      [1060, 250]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Location      [0, 27; 1707, 948]
+      State         "AAAA/wAAAAD9AAAAAgAAAAEAAAAAAAAAAPwCAAAAA/sAAAAQAFoAbwBvA"
+"G0AQQByAGUAYQAAAAAA/////wAAAFwA////+wAAABQAUwBhAHYAZQBkAFYAaQBlAHcAcwAAAAAA//"
+"///wAAAGYA////+wAAAAwAVAByAGEAYwBlAHMAAAAAAP////8AAABmAP///wAAAAMAAAAAAAAAAPw"
+"BAAAAAfsAAAAUAEQAYQB0AGEAVwBpAGQAZwBlAHQAAAAAAP////8AAABQAP///wAABqsAAAN+AAAA"
+"BAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAOAFQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAA"
+"AAAAA=="
+      SavedViews    "AAAAAgAAAAA="
+      HeaderState   "AAAA/wAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAL/gMAAAAJAAAAC"
+"AAAAJYAAAAJAAAAlgAAAAIAAACWAAAAAwAAAJYAAAABAAAAlgAAAAYAAACWAAAABwAAAJYAAAAEAA"
+"AAlgAAAAUAAACWAAAA1wAAAAsBAAABAAAAAAAAAAAAAAAAZP////8AAACBAAAAAAAAAAsAAACzAAA"
+"AAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAA"
+"AAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA"
+"AAkAAAAAQAAAAAAAAPoAAAAACQ="
+      PlotPalettes  "AAAAAQAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAA"
+"AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      Axes          "2"
+      TimeRange     "0"
+      ScrollingMode "1"
+      SingleTimeAxis "1"
+      Open          "0"
+      Ts            "-1"
+      SampleLimit   "0"
+      XAxisLabel    "Time / s"
+      ShowLegend    "1"
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Fourier {
+        SingleXAxis       on
+        AxisLabel         "Frequency / Hz"
+        Scaling           0
+        PhaseDisplay      0
+        ShowFourierLegend off
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+      }
+    }
+    Component {
+      Type          Reference
+      SrcComponent  "Components/Control/Filters/RMS Value"
+      Name          "RMS Value2"
+      Show          on
+      Position      [650, 320]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Frame         [-15, -15; 15, 15]
+      Parameter {
+        Variable      "x0"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "ts"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "fs"
+        Value         "50"
+        Show          off
+      }
+      Terminal {
+        Type          Input
+        Position      [-15, 0]
+        Direction     left
+      }
+      Terminal {
+        Type          Output
+        Position      [19, 0]
+        Direction     right
+      }
+    }
+    Component {
+      Type          Scope
+      Name          "Scope5"
+      Show          on
+      Position      [905, 350]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Location      [0, 27; 1707, 948]
+      State         "AAAA/wAAAAD9AAAAAgAAAAEAAAAAAAAAAPwCAAAAA/sAAAAQAFoAbwBvA"
+"G0AQQByAGUAYQAAAAAA/////wAAAFwA////+wAAABQAUwBhAHYAZQBkAFYAaQBlAHcAcwAAAAAA//"
+"///wAAAGYA////+wAAAAwAVAByAGEAYwBlAHMAAAAAAP////8AAABmAP///wAAAAMAAAAAAAAAAPw"
+"BAAAAAfsAAAAUAEQAYQB0AGEAVwBpAGQAZwBlAHQAAAAAAP////8AAABQAP///wAABqsAAAN+AAAA"
+"BAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAOAFQAbwBvAGwAQgBhAHIBAAAAAP////8AAAAAA"
+"AAAAA=="
+      SavedViews    "AAAAAgAAAAA="
+      HeaderState   "AAAA/wAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAL/gMAAAAJAAAAC"
+"AAAAJYAAAAJAAAAlgAAAAIAAACWAAAAAwAAAJYAAAABAAAAlgAAAAYAAACWAAAABwAAAJYAAAAEAA"
+"AAlgAAAAUAAACWAAAA1wAAAAsBAAABAAAAAAAAAAAAAAAAZP////8AAACBAAAAAAAAAAsAAACzAAA"
+"AAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAA"
+"AAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA"
+"AAkAAAAAQAAAAAAAAPoAAAAACQ="
+      PlotPalettes  "AAAAAQAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAA"
+"AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      Axes          "2"
+      TimeRange     "0"
+      ScrollingMode "1"
+      SingleTimeAxis "1"
+      Open          "0"
+      Ts            "-1"
+      SampleLimit   "0"
+      XAxisLabel    "Time / s"
+      ShowLegend    "1"
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Axis {
+        Name          ""
+        AutoScale     1
+        MinValue      0
+        MaxValue      1
+        Signals       {}
+        SignalTypes   [ ]
+        Untangle      0
+        KeepBaseline  off
+        BaselineValue 0
+      }
+      Fourier {
+        SingleXAxis       on
+        AxisLabel         "Frequency / Hz"
+        Scaling           0
+        PhaseDisplay      0
+        ShowFourierLegend off
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+        Axis {
+          Name          ""
+          AutoScale     1
+          MinValue      0
+          MaxValue      1
+          Signals       {}
+          Untangle      0
+          KeepBaseline  off
+          BaselineValue 0
+        }
+      }
+    }
+    Component {
+      Type          Resistor
+      Name          "R7"
+      Show          on
+      Position      [1105, 435]
+      Direction     right
+      Flipped       off
+      LabelPosition south
+      Parameter {
+        Variable      "R"
+        Value         "0.02"
+        Show          off
+      }
+    }
+    Component {
+      Type          Reference
+      SrcComponent  "Components/Control/Delays/Transport Delay"
+      Name          "Transport Delay"
+      Show          on
+      Position      [570, 320]
+      Direction     up
+      Flipped       off
+      LabelPosition south
+      Frame         [-15, -15; 15, 15]
+      Parameter {
+        Variable      "TimeDelaySource"
+        Value         "1"
+        Show          off
+      }
+      Parameter {
+        Variable      "T_d"
+        Value         "0.04"
+        Show          off
+      }
+      Parameter {
+        Variable      "T_d_max"
+        Value         "0.1"
+        Show          off
+      }
+      Parameter {
+        Variable      "y_init"
+        Value         "0"
+        Show          off
+      }
+      Parameter {
+        Variable      "buffer_size"
+        Value         "1024"
+        Show          off
+      }
+      Terminal {
+        Type          Output
+        Position      [19, 0]
+        Direction     right
+      }
+      Terminal {
+        Type          Input
+        Position      [-15, 0]
+        Direction     left
+      }
+      Terminal {
+        Type          Input
+        Position      [-15, 10]
+        Direction     left
+      }
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "L1"
+      SrcTerminal   2
+      DstComponent  "R1"
+      DstTerminal   2
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "L2"
+      SrcTerminal   2
+      DstComponent  "R2"
+      DstTerminal   2
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "L3"
+      SrcTerminal   2
+      Points        [740, 510]
+      Branch {
+        DstComponent  "R3"
+        DstTerminal   1
+      }
+      Branch {
+        Points        [740, 435]
+        Branch {
+          DstComponent  "R1"
+          DstTerminal   1
+        }
+        Branch {
+          Points        [800, 435]
+          DstComponent  "Tr2"
+          DstTerminal   1
+        }
+      }
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "L3"
+      SrcTerminal   1
+      Points        [740, 550]
+      Branch {
+        DstComponent  "R3"
+        DstTerminal   2
+      }
+      Branch {
+        Points        [740, 665]
+        Branch {
+          Points        [800, 665]
+          DstComponent  "Tr2"
+          DstTerminal   2
+        }
+        Branch {
+          Points        [485, 665; 485, 660]
+          Branch {
+            DstComponent  "V_ac"
+            DstTerminal   2
+          }
+          Branch {
+            Points        [435, 660]
+            DstComponent  "V_load1"
+            DstTerminal   2
+          }
+        }
+      }
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "Tr2"
+      SrcTerminal   3
+      Points        [820, 435]
+      DstComponent  "L2"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "A_load"
+      SrcTerminal   1
+      Points        [1530, 460]
+      Branch {
+        Points        [1530, 300]
+        DstComponent  "PPZ"
+        DstTerminal   2
+      }
+      Branch {
+        DstComponent  "V_load"
+        DstTerminal   1
+      }
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "Tr2"
+      SrcTerminal   4
+      Points        [820, 665; 1530, 665]
+      Branch {
+        DstComponent  "V_load"
+        DstTerminal   2
+      }
+      Branch {
+        Points        [2105, 665]
+        Branch {
+          Points        [2185, 665]
+          Branch {
+            Points        [2340, 665]
+            DstComponent  "I"
+            DstTerminal   1
+          }
+          Branch {
+            DstComponent  "Vm1"
+            DstTerminal   2
+          }
+        }
+        Branch {
+          DstComponent  "C1"
+          DstTerminal   2
+        }
+      }
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "Clock"
+      SrcTerminal   1
+      DstComponent  "C-Script"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "V_load"
+      SrcTerminal   3
+      Points        [1560, 540]
+      Branch {
+        Points        [1560, 340; 1600, 340]
+        Branch {
+          DstComponent  "RMS Value"
+          DstTerminal   1
+        }
+        Branch {
+          Points        [1600, 210]
+          DstComponent  "Scope3"
+          DstTerminal   1
+        }
+      }
+      Branch {
+        Points        [1560, 560]
+        DstComponent  "Goto"
+        DstTerminal   1
+      }
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "C-Script2"
+      SrcTerminal   3
+      Points        [2460, 680; 2460, 620; 2315, 620]
+      DstComponent  "I"
+      DstTerminal   3
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "Clock1"
+      SrcTerminal   1
+      Points        [2340, 675]
+      DstComponent  "C-Script2"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "A_load1"
+      SrcTerminal   2
+      Points        [2340, 460]
+      DstComponent  "I"
+      DstTerminal   2
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "A_load1"
+      SrcTerminal   3
+      Points        [2240, 340]
+      DstComponent  "Scope1"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "A_load1"
+      SrcTerminal   1
+      Points        [2185, 460]
+      Branch {
+        Points        [2105, 460]
+        Branch {
+          DstComponent  "R6"
+          DstTerminal   1
+        }
+        Branch {
+          DstComponent  "C1"
+          DstTerminal   1
+        }
+      }
+      Branch {
+        DstComponent  "Vm1"
+        DstTerminal   1
+      }
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "Single-Phase PLL"
+      SrcTerminal   2
+      Points        [2295, 850]
+      DstComponent  "Trigonometric\nFunction"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "L1"
+      SrcTerminal   1
+      Points        [485, 435]
+      Branch {
+        DstComponent  "V_ac"
+        DstTerminal   1
+      }
+      Branch {
+        Points        [435, 435]
+        DstComponent  "V_load1"
+        DstTerminal   1
+      }
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "V_load1"
+      SrcTerminal   3
+      Points        [450, 615; 360, 615]
+      DstComponent  "Goto1"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "RMS Value"
+      SrcTerminal   2
+      Points        [1880, 340; 1880, 370]
+      DstComponent  "Scope"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "RMS Value1"
+      SrcTerminal   2
+      Points        [1860, 385; 1860, 380]
+      DstComponent  "Scope"
+      DstTerminal   2
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "A_load"
+      SrcTerminal   3
+      Points        [1635, 385; 1640, 385]
+      Branch {
+        DstComponent  "RMS Value1"
+        DstTerminal   1
+      }
+      Branch {
+        Points        [1640, 220]
+        DstComponent  "Scope3"
+        DstTerminal   2
+      }
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "From1"
+      SrcTerminal   1
+      Points        [2145, 800; 2145, 860]
+      DstComponent  "Single-Phase PLL"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "Trigonometric\nFunction"
+      SrcTerminal   2
+      Points        [2355, 785]
+      Branch {
+        Points        [2390, 785; 2390, 895]
+        DstComponent  "Scope2"
+        DstTerminal   1
+      }
+      Branch {
+        Points        [2355, 685]
+        DstComponent  "C-Script2"
+        DstTerminal   2
+      }
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "A_load"
+      SrcTerminal   2
+      DstComponent  "R6"
+      DstTerminal   2
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "Constant"
+      SrcTerminal   1
+      Points        [730, 255; 730, 290]
+      DstComponent  "C-Script1"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "RMS Value2"
+      SrcTerminal   2
+      Points        [735, 320; 735, 300]
+      DstComponent  "C-Script1"
+      DstTerminal   2
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "C-Script1"
+      SrcTerminal   4
+      Points        [870, 300; 870, 345]
+      DstComponent  "Scope5"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "R2"
+      SrcTerminal   1
+      DstComponent  "R7"
+      DstTerminal   2
+    }
+    Connection {
+      Type          Wire
+      SrcComponent  "R7"
+      SrcTerminal   1
+      Points        [1275, 435]
+      DstComponent  "PPZ"
+      DstTerminal   3
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "From"
+      SrcTerminal   1
+      DstComponent  "Transport Delay"
+      DstTerminal   2
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "Transport Delay"
+      SrcTerminal   1
+      DstComponent  "RMS Value2"
+      DstTerminal   1
+    }
+    Connection {
+      Type          Signal
+      SrcComponent  "C-Script1"
+      SrcTerminal   3
+      Points        [900, 290; 900, 295; 980, 295]
+      Branch {
+        Points        [1000, 295; 1000, 245]
+        DstComponent  "Scope4"
+        DstTerminal   1
+      }
+      Branch {
+        Points        [980, 345]
+        DstComponent  "PPZ"
+        DstTerminal   1
+      }
+    }
+  }
+}
