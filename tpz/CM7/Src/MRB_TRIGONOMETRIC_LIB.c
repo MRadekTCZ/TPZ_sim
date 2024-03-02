@@ -1215,6 +1215,10 @@ float sin_f(float arg)
 {
 	float result_value = 0;
 	unsigned int arg_conversion_to_decimal = 0;
+	if ((arg >= -2*MRB_TL_PI) && (arg < 0))
+		{
+		arg = arg + 2*MRB_TL_PI;
+		}
 	if ((arg >= 0) && (arg <= MRB_TL_PI))
 	{
 		arg_conversion_to_decimal = floor(arg * MRB_TL_LUT_LENGTH * MRB_TL_1_BY_2PI*2);
@@ -1229,12 +1233,16 @@ float sin_f(float arg)
 
 		return result_value*(-1);
 	}
-	else return 0xFFFF;
+	else return 0x00;
 };
 float cos_f(float arg)
 {
 	float result_value = 0;
 	unsigned int arg_conversion_to_decimal = 0;
+	if ((arg >= -2*MRB_TL_PI) && (arg < 0))
+		{
+		arg = arg + 2*MRB_TL_PI;
+		}
 	if ((arg >= 0) && (arg <= MRB_TL_PI))
 	{
 		arg_conversion_to_decimal = floor(arg * MRB_TL_LUT_LENGTH * MRB_TL_1_BY_2PI*2);
@@ -1249,7 +1257,7 @@ float cos_f(float arg)
 
 		return result_value * (-1);
 	}
-	else return 0xFFFF;
+	else return 0x00;
 };
 float asin_f(float arg)
 {
@@ -1269,5 +1277,5 @@ float asin_f(float arg)
 
 		return result_value * (-1);
 	}
-	else return 0xFFFF;
+	else return 0x00;
 };

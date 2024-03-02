@@ -21,9 +21,10 @@
 #define SAMPLE_PRERIOD 0.0001
 #define DIDT_SCALING_CONSTANT 0.00303030303
 #define BASE_FREQ 50
-#define BASE_PERIOD 0.02
-#define BUFFER_SIZE 200
+#define BASE_PERIOD 0.02 //RMS counted for 50Hz frequency with 1kHz measure rate
+#define BUFFER_SIZE 20
 #define DT 0.0001
+#define DT_RMS 0.001
 /******************************************
 THREE PHASE FUNCTIONS
 *******************************************/

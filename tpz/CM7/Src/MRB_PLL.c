@@ -27,8 +27,8 @@ struct Axis DQ(float signal_alfa, float signal_beta, float angle)
 	DQ.y = 0;
 	//if(angle >= 0 && angle <= 2*PI)
 	//{
-	DQ.x = signal_alfa*cos(angle) + signal_beta*sin(angle);
-	DQ.y = -signal_alfa*sin(angle) + signal_beta*cos(angle);
+	DQ.x = signal_alfa*cos_f(angle) + signal_beta*sin_f(angle);
+	DQ.y = -signal_alfa*sin_f(angle) + signal_beta*cos_f(angle);
 	//}
 	return DQ;
 }
@@ -77,9 +77,10 @@ double RMS(double signal_actual, PLL_1phase_Handler* PLL_1phase )
 	double rms;
 	double signal_x2;
 	double signal_integral;
+	double one_by_rms;
 
 	signal_x2 = signal_actual*signal_actual;
-	signal_x2 = signal_x2*DT;
+	signal_x2 = signal_x2*DT_RMS;
 	signal_integral = 0;
 	for(int i=0; i<BUFFER_SIZE-1;i++)
 	{
@@ -89,11 +90,15 @@ double RMS(double signal_actual, PLL_1phase_Handler* PLL_1phase )
 	PLL_1phase->signal_integral_RMS_buffer[BUFFER_SIZE-1] = signal_x2;
 	signal_integral = signal_integral + signal_x2;
 	rms = sqrt(BASE_FREQ*signal_integral);
-
-	return rms;
+	//1 by rms is counted here, because RMS is counted less frequently than PLL.
+	//That makes dividing occur 10 times less frequently, what drastically increase efficiency
+	if(rms != 0) one_by_rms = 1/rms;
+	else one_by_rms = 0;
+	//return rms;
+	return one_by_rms;
 }
 
-double PLL_1phase(double input_signal, double rms, PLL_1phase_Handler* PLL_1phase )
+double PLL_1phase(double input_signal, double one_by_rms, PLL_1phase_Handler* PLL_1phase )
 {
 	double actual_relUnit=0;
 	double PLL_asin;
@@ -104,9 +109,9 @@ double PLL_1phase(double input_signal, double rms, PLL_1phase_Handler* PLL_1phas
 	double didt;
 
 //Scaling
-	if(rms != 0) actual_relUnit = input_signal* ONE_BY_SQRT2 / rms;
+	actual_relUnit = input_signal* ONE_BY_SQRT2 * one_by_rms;
 
-	//Moving Average with 5 behind actual values and 5 before
+	//Moving Average with 5 behind actual value and 5 before
 	for(int i=0; i<10;i++)
 	{
 		PLL_1phase->moving_average_buffer[i] = PLL_1phase->moving_average_buffer[i+1];
@@ -119,11 +124,8 @@ double PLL_1phase(double input_signal, double rms, PLL_1phase_Handler* PLL_1phas
 	}
 	PLL_1phase->moving_average_buffer[20-1] = actual_relUnit;
 	buffer_future = (buffer_future+actual_relUnit);
-	//buffer_sum = buffer_past + buffer_future;
-	//moving_average_10 = buffer_sum* 0.05;
-	//******************************************//
-	//didt = (actual_relUnit - PLL_1phase->signal_input_last) * SAMPLE_FREQ * DIDT_SCALING_CONSTANT ;
 	didt = (buffer_future-buffer_past);
+	//Theta estimate basing on actual current value and derivative
 	if(actual_relUnit >= 1)
 	{
 	PLL_asin = PI_BY_2;
@@ -135,20 +137,20 @@ double PLL_1phase(double input_signal, double rms, PLL_1phase_Handler* PLL_1phas
 	}
 	else if(actual_relUnit > 0 && didt > 0)
 	{
-	PLL_asin = asin(actual_relUnit);
+	PLL_asin = asin_f(actual_relUnit);
 	}
 	else if(didt <= 0)
 	{
-	PLL_asin = -asin(actual_relUnit) + PI_BY_2 + PI_BY_2;
+	PLL_asin = -asin_f(actual_relUnit) + PI_BY_2 + PI_BY_2;
 	}
 
 	else if(actual_relUnit < 0 && didt > 0)
 	{
-	PLL_asin = asin(actual_relUnit) + PI_BY_2 * 3 + PI_BY_2;
+	PLL_asin = asin_f(actual_relUnit) + PI_BY_2 * 3 + PI_BY_2;
 	}
 	else PLL_asin=0;
 
-	//Protection from PLL falling
+	//Protection from PLL falling - in case of high noise
 	if( (PLL_asin-PLL_1phase->PLL_asin_last) <0 && (PLL_asin-PLL_1phase->PLL_asin_last) >-PI )
 	{
 	PLL_asin = PLL_1phase->PLL_asin_last;

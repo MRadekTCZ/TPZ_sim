@@ -102,10 +102,44 @@ float PID_PLL_I_output = 0;
 double current_phase_emulated[3] = {30,150,270}, voltage_phase_emulated[3]={0,120,240};
 double actual_current[3], actual_voltage[3];
 double theta_U_emulated[3] = {0, PI_BY_3*4, PI_BY_3*2 };
-double theta_I_emulated[3] = {0+COS_PHI_SHIFT, PI_BY_3*4+COS_PHI_SHIFT,PI_BY_3*2+COS_PHI_SHIFT};
+double theta_I_emulated[3] = {0-COS_PHI_SHIFT, PI_BY_3*4-COS_PHI_SHIFT,PI_BY_3*2-COS_PHI_SHIFT};
 
-volatile uint32_t *memory_address = (uint32_t *)0x38000000;
-volatile uint32_t *memory_address2 = (uint32_t *)0x38000004;
+
+
+float DAC_test_RMS;
+PLL_1phase_Handler DAC_test_pll;
+
+//DIAGNOSTICS------------------
+#include <stdint.h>
+
+volatile uint16_t *MDB_REG_1000 = (uint16_t *)0x38000000;
+volatile uint16_t *MDB_REG_1001 = (uint16_t *)0x38000002;
+volatile uint16_t *MDB_REG_1002 = (uint16_t *)0x38000004;
+volatile uint16_t *MDB_REG_1003 = (uint16_t *)0x38000006;
+volatile uint16_t *MDB_REG_1004 = (uint16_t *)0x38000008;
+volatile uint16_t *MDB_REG_1005 = (uint16_t *)0x3800000A;
+volatile uint16_t *MDB_REG_1006 = (uint16_t *)0x3800000C;
+volatile uint16_t *MDB_REG_1007 = (uint16_t *)0x3800000E;
+volatile uint16_t *MDB_REG_1008 = (uint16_t *)0x38000010;
+volatile uint16_t *MDB_REG_1009 = (uint16_t *)0x38000012;
+volatile uint16_t *MDB_REG_1010 = (uint16_t *)0x38000014;
+volatile uint16_t *MDB_REG_1011 = (uint16_t *)0x38000016;
+volatile uint16_t *MDB_REG_1012 = (uint16_t *)0x38000018;
+volatile uint16_t *MDB_REG_1013 = (uint16_t *)0x3800001A;
+volatile uint16_t *MDB_REG_1014 = (uint16_t *)0x3800001C;
+volatile uint16_t *MDB_REG_1015 = (uint16_t *)0x3800001E;
+volatile uint16_t *MDB_REG_1016 = (uint16_t *)0x38000020;
+volatile uint16_t *MDB_REG_1017 = (uint16_t *)0x38000022;
+volatile uint16_t *MDB_REG_1018 = (uint16_t *)0x38000024;
+volatile uint16_t *MDB_REG_1019 = (uint16_t *)0x38000026;
+volatile uint16_t *MDB_REG_1020 = (uint16_t *)0x38000028;
+volatile uint16_t *MDB_REG_1021 = (uint16_t *)0x3800002A;
+volatile uint16_t *MDB_REG_1022 = (uint16_t *)0x3800002C;
+
+volatile uint16_t *MDB_REG_1050 = (uint16_t *)0x38000064;
+
+uint8_t data_spi[8];
+byte_frame_tap spi_frame_tap_info[3];
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -194,20 +228,23 @@ Error_Handler();
   MX_TIM13_Init();
   MX_ADC1_Init();
   MX_ADC3_Init();
-  MX_SPI1_Init();
   MX_DMA_Init();
   MX_TIM16_Init();
   MX_ADC2_Init();
+  MX_TIM17_Init();
+  MX_SPI4_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim13);
 
   HAL_TIM_Base_Start_IT(&htim16);
+  HAL_TIM_Base_Start_IT(&htim17);
 
-  //HAL_ADC_MspInit(&hadc1);
+
   HAL_ADC_Start_DMA(&hadc1, (uint16_t*)ADC_raw_voltage, 2);
   HAL_ADC_Start_DMA(&hadc2, (uint16_t*)ADC_raw_current, 3);
   HAL_ADC_Start(&hadc3);
 
+  //__HAL_SPI_ENABLE(&hspi3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -294,7 +331,7 @@ void PeriphCommonClock_Config(void)
 
   /** Initializes the peripherals clock
   */
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_SPI1;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC;
   PeriphClkInitStruct.PLL2.PLL2M = 4;
   PeriphClkInitStruct.PLL2.PLL2N = 25;
   PeriphClkInitStruct.PLL2.PLL2P = 4;
@@ -303,7 +340,6 @@ void PeriphCommonClock_Config(void)
   PeriphClkInitStruct.PLL2.PLL2RGE = RCC_PLL2VCIRANGE_3;
   PeriphClkInitStruct.PLL2.PLL2VCOSEL = RCC_PLL2VCOWIDE;
   PeriphClkInitStruct.PLL2.PLL2FRACN = 0;
-  PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_PLL2;
   PeriphClkInitStruct.AdcClockSelection = RCC_ADCCLKSOURCE_PLL2;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
@@ -314,14 +350,15 @@ void PeriphCommonClock_Config(void)
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	//5 Hz timer
+	//10 Hz timer
 	if(htim->Instance == TIM13)
 	{
 		//LED for indicationg that the programs is running and there is no timeout.
 		//TIM13 interrupt has lowest priority, so if this part has been done, everything is done.
+		//If LED toggles too often -> Make new timer with 2Hz frequency.
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
 		cycles_master_task++;
-		*memory_address2 = cycles_master_task;
+		*MDB_REG_1020 = cycles_master_task;
 		//Tap set from measter read
 		//*************************//
 		HAL_ADC_Start(&hadc3);
@@ -331,14 +368,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 		//PID - MASTER CONTROL (LOCAL)
 
-
-
-		//Diagnostic data exchange with CM4
 		//PID calibration
 		PID_Voltage_PLL.KP = PID_1_KP;
 		PID_Voltage_PLL.KI = PID_1_KI;
 		PID_Voltage_PLL.KD = PID_1_KD;
 
+
+		//Diagnostic data exchange with CM4
 	}
 
 	// 10 kHz frequency timer
@@ -347,10 +383,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 
 		cycles_base_algo_task++;
-		*memory_address = ADC_main_tap;
+		*MDB_REG_1021 = ADC_main_tap;
 		//*************************************************************************************************//
 		//EMULATION - TESTS AND DEBUGGING
 		//*************************************************************************************************//
+		#ifdef EMULATION
 		for(int i= 0; i<3; i++)
 		{
 			theta_U_emulated[i] = theta_U_emulated[i]+PI*2*0.0001*50;
@@ -368,8 +405,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//actual_current[2] = ADC_raw_current[2] *
 		actual_voltage[0] = 311*sin_f(theta_U_emulated[0]);
 		actual_voltage[1] = 312*sin_f(theta_U_emulated[1]);
-		actual_voltage[2] = 312*sin_f(theta_U_emulated[2]);
-
+		//actual_voltage[2] = 312*sin_f(theta_U_emulated[2]);
+		actual_voltage[2] = -actual_voltage[0] - actual_voltage[1];
 		#ifdef EMULATION_SIMPLE
 		voltage_phase_emulated[0] =  voltage_phase_emulated[0] + 360*50*0.0001;
 		current_phase_emulated[0]=  current_phase_emulated[0] + 360*50*0.0001;
@@ -381,6 +418,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		#endif
 
 
+		#endif
 		//*************************************************************************************************//
 		//EMULATION - TESTS AND DEBUGGING
 		//*************************************************************************************************//
@@ -388,14 +426,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//*************************************************************************************************//
 		//MEASUREMENTS AND PLL ALGORITHM
 		//*************************************************************************************************//
-
-
+		#ifndef EMULATION
+		//ADC scalling
+		actual_current[0] = (ADC_raw_current[0]-2048)*0.07324218;
+		actual_current[1] = (ADC_raw_current[1]-2048)*0.07324218;
+		actual_current[2] = (ADC_raw_current[2]-2048)*0.07324218;
+		actual_voltage[0] = (ADC_raw_voltage[0]-2048)*0.161133;
+		actual_voltage[1] = (ADC_raw_voltage[1]-2048)*0.161133;
+		actual_voltage[2] = -actual_voltage[0] - actual_voltage[1];
+		#endif
 		//*************ONE PHASE PLL - CURRENTS****************
-		current_RMS[0] = RMS(actual_current[0], &PLL_current_phase1);
 		I_PLL_1p.phase_A = PLL_1phase(actual_current[0], current_RMS[0], &PLL_current_phase1);
-		current_RMS[1] = RMS(actual_current[1], &PLL_current_phase1);
 		I_PLL_1p.phase_B = PLL_1phase(actual_current[1], current_RMS[1], &PLL_current_phase2);
-		current_RMS[2] = RMS(actual_current[2], &PLL_current_phase1);
 		I_PLL_1p.phase_C = PLL_1phase(actual_current[2], current_RMS[2], &PLL_current_phase3);
 
 		//*************THREE PHASE PLL - VOLTAGES****************
@@ -442,6 +484,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		                            tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 		                            tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 		                            state_machine[phase] = 1;
+		                            spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 		                        }
 		                        break;
 		                    case 1:
@@ -451,6 +494,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		                            tppz[phase].Tap_select[set_actual_tap[phase]].Tap_up = ON;
 		                            actual_tap[phase] = set_actual_tap[phase];
 		                            state_machine[phase] = 0;
+		                            spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 		                        }
 		                        break;
 		                    }
@@ -474,6 +518,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		                    tppz[phase].Tap_select[actual_tap[phase]].Tap_down = ON;
 		                    tppz[phase].Tap_select[actual_tap[phase]].Tap_up = ON;
 		                    state_machine[phase] = 0;
+		                    spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 		                }
 		           //************************************
 		           //End of protections
@@ -485,6 +530,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 						if (actual_tap[phase] == set_actual_tap[phase])
 						{
 							watchdog[phase].counter = 0; //if tap set is equal to actual tap
+							spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 						}
 						else if (actual_tap[phase] != set_actual_tap[phase])
 						{
@@ -501,6 +547,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 
@@ -508,9 +555,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										if (voltage_phase[phase] > (360 - 5 * MARGIN))  //allow for low value short circuit
 										{
 
-											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = ON;
-											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = ON;
+											tppz[phase].Tap_select[actual_tap[phase]+1].Tap_up = ON;
+											tppz[phase].Tap_select[actual_tap[phase]+1].Tap_down = ON;
 											state_machine[phase] = 2;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]+1, phase );
 										}
 										break;
 									case 2:
@@ -519,6 +567,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 											actual_tap[phase]++;
 											state_machine[phase] = 0;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 
 										}
 										break;
@@ -537,6 +586,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+
 										}
 										break;
 										// case 0 and case 1 are similiar, there is time for turning off thyristor
@@ -546,7 +597,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 											tppz[phase].Tap_select[actual_tap[phase] + tap_delta].Tap_up = ON;
 											state_machine[phase] = 2;
-
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
 										}
 
 										break;
@@ -557,6 +608,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 											tppz[phase].Tap_select[actual_tap[phase] + tap_delta].Tap_down = ON;
 											state_machine[phase] = 3;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
 
 										}
 
@@ -568,6 +620,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											//actual_tap[phase]++;
 											actual_tap[phase] += tap_delta;
 											state_machine[phase] = 0;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 
 
 										}
@@ -584,11 +637,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 									{
 
 									case 0:
-										if (voltage_phase[phase] < (120 - MARGIN) && voltage_phase[phase] > 2 && current_phase[phase] < (120 - MARGIN) && current_phase[phase] > 2)
+										if (voltage_phase[phase] < (120 - MARGIN) && voltage_phase[phase] > 2 && current_phase[phase] < (120 - MARGIN) && current_phase[phase] > MARGIN)
 										{
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 
@@ -597,6 +651,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											tppz[phase].Tap_select[actual_tap[phase] + tap_delta].Tap_down = ON;
 											state_machine[phase] = 2;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
 										}
 										break;
 
@@ -605,6 +660,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											tppz[phase].Tap_select[actual_tap[phase] + tap_delta].Tap_up = ON;
 											state_machine[phase] = 3;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
 										}
 										break;
 
@@ -614,12 +670,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											//actual_tap[phase]++;
 											actual_tap[phase] += tap_delta;
 											state_machine[phase] = 0;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 
 										}
 										break;
 									}
 
 								}
+
 							}
 
 							else if (actual_tap[phase] > set_actual_tap[phase])
@@ -634,6 +692,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 									case 1:
@@ -642,6 +701,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase] - 1].Tap_up = ON;
 											tppz[phase].Tap_select[actual_tap[phase] - 1].Tap_down = ON;
 											state_machine[phase] = 2;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]-1, phase );
 										}
 										break;
 									case 2:
@@ -649,6 +709,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											actual_tap[phase]--;
 											state_machine[phase] = 0;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 
 
 										}
@@ -661,20 +722,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 									switch (state_machine[phase])
 									{
 									case 0:
-										if (voltage_phase[phase] < (180 - MARGIN) && voltage_phase[phase] > 2 && current_phase[phase] < (180 - MARGIN) && current_phase[phase] > 2) //Wy³¹czenie tyrystorow przed zmian¹ polaryzacji
+										if (voltage_phase[phase] < (180 - MARGIN) && voltage_phase[phase] > 2 && current_phase[phase] < (180 - MARGIN) && current_phase[phase] > MARGIN)
 										{
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
-
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 									case 1:
-										if (voltage_phase[phase] > (180 + MARGIN) && current_phase[phase] < (180 - MARGIN)) //prze³¹czenie "na zak³adkê" - za³¹czenie przecienego tyrystora
+										if (voltage_phase[phase] > (180 + MARGIN) && current_phase[phase] < (180 - MARGIN)) //bookmark switch
 										{
 											tppz[phase].Tap_select[actual_tap[phase] - tap_delta].Tap_down = ON;
 											state_machine[phase] = 2;
-
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]-tap_delta, phase );
 										}
 										break;
 									case 2:
@@ -682,7 +743,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											tppz[phase].Tap_select[actual_tap[phase] - tap_delta].Tap_up = ON;
 											state_machine[phase] = 3;
-
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]-tap_delta, phase );
 										}
 										break;
 									case 3:
@@ -692,7 +753,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											//actual_tap[phase]--;
 											actual_tap[phase] -= tap_delta;
 											state_machine[phase] = 0;
-
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 									}
@@ -702,7 +763,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 								if (Loadtype[phase] == Capacitive) // cos fi -> capacitive
 								{
 
-									//Pierwszy wariant - bezzwarciowy
+									//first varant - without circuit shorts
 									switch (state_machine[phase])
 									{
 
@@ -710,9 +771,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										if (voltage_phase[phase] > (0 + MARGIN) && current_phase[phase] > (0 + MARGIN) && current_phase[phase] < (180 - MARGIN)) // gdy prad jest w fazie z napieciem
 										{
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
-
-
 											state_machine[phase] = 1;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 									case 1:
@@ -722,9 +782,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 											tppz[phase].Tap_select[actual_tap[phase] - tap_delta].Tap_down = ON;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
-
-
 											state_machine[phase] = 2;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]- tap_delta, phase );
 										}
 										break;
 									case 2:
@@ -732,6 +791,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											tppz[phase].Tap_select[actual_tap[phase] - tap_delta].Tap_up = ON;
 											state_machine[phase] = 3;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]- tap_delta, phase );
 										}
 										break;
 									case 3:
@@ -740,41 +800,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											//actual_tap[phase]--;
 											actual_tap[phase] -= tap_delta;
 											state_machine[phase] = 0;
+											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 									}
-
-									/*
-									//Second option - cos fi near 1
-									switch (state_machine[phase])
-									{
-									case 0:
-										if (voltage_phase[phase] > (180 + MARGIN) && current_phase[phase] > (180 + MARGIN) && state_machine[phase] == 0) // gdy prad jest w fazie z napieciem
-										{
-											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
-											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
-											state_machine[phase] = 1;
-										}
-										break;
-									case 1:
-										if (current_phase[phase] > (360 - 1 * MARGIN) && state_machine[phase] == 1)
-										{
-
-											tppz[phase].Tap_select[actual_tap[phase]-1].Tap_down = ON;
-											tppz[phase].Tap_select[actual_tap[phase]-1].Tap_up = ON;
-											state_machine[phase] = 2;
-										}
-										break;
-									case 2:
-										if (state_machine[phase] == 2 && voltage_phase[phase] > 2 && voltage_phase[phase] < (90 - MARGIN) && current_phase[phase] > 2 && current_phase[phase] < (90 - MARGIN))
-										{
-											actual_tap[phase]--;
-											state_machine[phase] = 0;
-
-										}
-										break;
-									}
-									*/
 								}
 
 							}
@@ -783,17 +812,31 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					}
 				}
 
+		HAL_SPI_Transmit_IT(&hspi4, (uint8_t*)spi_frame_tap_info[0].byte, 1);
+		//HAL_SPI_Transmit_IT(&hspi5, (uint8_t*)spi_frame_tap_info[1].byte, 1);
+		//HAL_SPI_Transmit_IT(&hspi6, (uint8_t*)spi_frame_tap_info[2].byte, 1);
 
-
-
-	/*********************************************************************************************************************************/
+		/*********************************************************************************************************************************/
 		//END OF ALGORITHM
 		/*********************************************************************************************************************************/
 
 
 	}
+	//Calculating RMS with 1kHz frequency
+	//Dividing harshly exhaust micro controller, so it was put in interupt with lower frequency
+	if(htim->Instance == TIM17)
+	{
+		//***************CURRENT RMS***************//
 
+		//Actually it is 1/rms. In debugging it need to write 1/"debugging value" to see actual RMS.
+		current_RMS[0] = RMS(actual_current[0], &PLL_current_phase1);
+		current_RMS[1] = RMS(actual_current[1], &PLL_current_phase2);
+		current_RMS[2] = RMS(actual_current[2], &PLL_current_phase3);
+
+		DAC_test_RMS = RMS((ADC_raw_current[2]-2048)*0.07324218, &DAC_test_pll);
+	}
 }
+
 /* USER CODE END 4 */
 
 /**

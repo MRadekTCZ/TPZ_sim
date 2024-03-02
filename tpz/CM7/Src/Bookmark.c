@@ -37,6 +37,36 @@ short int Tap_diff(short int actual_tap_set, short int actual_tap, enum change_t
 	return e;
 }
 
+byte_frame_tap Tap_bit(TPPZ tppz, unsigned short int tap, unsigned short int phase )
+{
+byte_frame_tap _8bit_frame;
+_8bit_frame.byte = 0x00;
+switch(phase)
+{
+case 0:
+	_8bit_frame.byte_8.b0 = 0;
+	_8bit_frame.byte_8.b1 = 1;
+	break;
+case 1:
+	_8bit_frame.byte_8.b0 = 1;
+	_8bit_frame.byte_8.b1 = 0;
+	break;
+case 2:
+	_8bit_frame.byte_8.b0 = 1;
+	_8bit_frame.byte_8.b1 = 1;
+	break;
+default:
+	_8bit_frame.byte_8.b0 = 0;
+	_8bit_frame.byte_8.b1 = 0;
+	break;
+}
+_8bit_frame.byte_8.tap_down = tppz.Tap_select[tap].Tap_down;
+_8bit_frame.byte_8.tap_up = tppz.Tap_select[tap].Tap_up;
+_8bit_frame.byte_8.actual_tap = tap;
+
+
+return _8bit_frame;
+}
 // Software watchdog based on the tap switch structure and state machine
 void program_Watchdog(TPPZ *tppz, struct Watchdog *watchdog, short int *state_machine, short int* actual_tap, short int actual_tap_set)
 {
@@ -68,21 +98,5 @@ void program_Watchdog(TPPZ *tppz, struct Watchdog *watchdog, short int *state_ma
 }
 
 // Determine the bit pattern for a specific tap
-int Tap_bit(TPPZ tppz, int tap, int enable)
-{
-	if (enable && tap >= 12)
-	{
-		// Bitmask for upper thyristors (odd bits) and lower thyristors (even bits)
-		short int mask = (tppz.Tap_select[tap].Tap_up << 1) + tppz.Tap_select[tap].Tap_down;
-		// The mask can be 00, 01 (only the lower of the pair is enabled), 11 (both enabled), or 10 (only the upper of the pair is enabled)
-		// Bit shift depending on the tap number - Tap switch A (taps from 0 to 12)
-		return ((0x3 & mask) << 2 * (tap - 12));
-	}
-	else if (enable && tap < 12)
-	{
-		short int mask = (tppz.Tap_select[tap].Tap_up << 1) + tppz.Tap_select[tap].Tap_down;
-		return ((0x3 & mask) << (2 * (tap))); // Bit shift depending on the tap number, Tap switch B (taps from -12 to -1)
-	}
-	else return 0;
-}
+
 

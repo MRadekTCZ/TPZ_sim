@@ -9,7 +9,7 @@
 #define INC_BOOKMARK_H_
 
 #define SAMPLES_10ms 3020 // Number of samples for watchdog counting
-#define MARGIN 2.0 // Angle margin for switching
+#define MARGIN 5.0 // Angle margin for switching
 #define NO_LOAD_STATE 0.2 // Threshold value of RMS current below which the load is considered absent
 #define NUMBER_OF_TAPS 16
 // Thyristor states
@@ -31,6 +31,20 @@ struct Tap_State // Switch object structure
 };
 typedef struct Tap_State TPPZ;
 
+typedef struct TAP_INFO_FRAME
+{
+	unsigned char actual_tap : 4;
+	unsigned char tap_up : 1;
+	unsigned char tap_down : 1;
+	unsigned char b1 : 1;
+	unsigned char b0 : 1;
+}tap_info_frame;
+
+typedef union BYTE_u
+{
+	tap_info_frame byte_8;
+	unsigned char byte;
+}byte_frame_tap;
 /************************************/
 
 enum change_types { step, jump }; // Tap change mode - step or jump (one by one)
@@ -48,6 +62,8 @@ short int Tap_diff(short int actual_tap_set, short int actual_tap, enum change_t
 // Ultimately, I decided that the main algorithm is better not to be a function. Easier to monitor variables, etc.
 // short int BOOKMARK(TPPZ* tppz, short int actual_tap_set_global, double voltage_phase, double current_phase, double actual_current, double q_error, struct Watchdog* watchdog);
 void program_Watchdog(TPPZ* tppz, struct Watchdog* watchdog, short int* state_machine, short int* actual_tap, short int actual_tap_set);
-int Tap_bit(TPPZ tppz, int tap, int enable);
+
+
+byte_frame_tap Tap_bit(TPPZ tppz, unsigned short int tap, unsigned short int phase );
 
 #endif /* INC_BOOKMARK_H_ */
