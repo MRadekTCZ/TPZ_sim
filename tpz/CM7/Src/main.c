@@ -22,6 +22,7 @@
 #include "dma.h"
 #include "spi.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -37,6 +38,7 @@
 #include "MRB_TRIGONOMETRIC_LIB.h"
 #include "MRB_PLL.h"
 #define RAD_TO_DEGREE_CONV 57.29577951308
+#define SCALE 0.003663004
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,6 +97,14 @@ PID_handler PID_Current_PLL;
 Three_phase_handler I_PLL;
 double PLL_theta_I;
 float PID_PLL_I_output = 0;
+//MASTER CONTROL-----------------------
+PID_handler Master_Voltage_Control;
+#define MVS_SAMPLE_TIME 0.1
+#define MVS_DT_TIME 10
+double MVS_voltage_set = 220.0;
+double MVS_actual_voltage;
+double MVS_tap_control;
+#define MVS_HISTERESIS 0.05
 //EMULATION VARIABLES------------------------
 
 #define EMULATION 1
@@ -139,7 +149,10 @@ volatile uint16_t *MDB_REG_1022 = (uint16_t *)0x3800002C;
 volatile uint16_t *MDB_REG_1050 = (uint16_t *)0x38000064;
 
 uint8_t data_spi[8];
+uint8_t rec_data_spi[8];
 byte_frame_tap spi_frame_tap_info[3];
+byte_frame_tap UART_received_frame;
+uint8_t uart_send;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -233,6 +246,7 @@ Error_Handler();
   MX_ADC2_Init();
   MX_TIM17_Init();
   MX_SPI4_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim13);
 
@@ -243,7 +257,9 @@ Error_Handler();
   HAL_ADC_Start_DMA(&hadc1, (uint16_t*)ADC_raw_voltage, 2);
   HAL_ADC_Start_DMA(&hadc2, (uint16_t*)ADC_raw_current, 3);
   HAL_ADC_Start(&hadc3);
-
+  HAL_UART_Transmit_IT(&huart6, 0x45, 1);
+  HAL_UART_Receive_IT(&huart6, &UART_received_frame, 1);
+  //HAL_SPI_Receive_DMA(&hspi4, (uint8_t*)rec_data_spi, 1);
   //__HAL_SPI_ENABLE(&hspi3);
   /* USER CODE END 2 */
 
@@ -363,10 +379,31 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//*************************//
 		HAL_ADC_Start(&hadc3);
 		ADC_main_tap = HAL_ADC_GetValue(&hadc3);
-		//Global_set_actual_tap = ADC_main_tap*SCALE;
+		Global_set_actual_tap = floor(ADC_main_tap*SCALE);
 		//**************************//
 
 		//PID - MASTER CONTROL (LOCAL)
+		Master_Voltage_Control.KP = 0.1;
+		Master_Voltage_Control.KI = 2;
+		Master_Voltage_Control.KD = 0;
+
+
+		MVS_tap_control = PID_Regulator((MVS_voltage_set - MVS_actual_voltage), &Master_Voltage_Control);
+		if(MVS_tap_control<-1.0) MVS_tap_control=-1; //Windup
+		else if(MVS_tap_control>1.0) MVS_tap_control=1;   //Windup
+
+		if(MVS_tap_control>MVS_HISTERESIS) Global_set_actual_tap -= 1;
+		else if(MVS_tap_control<-MVS_HISTERESIS) Global_set_actual_tap += 1;
+
+		if(Global_set_actual_tap>(NUMBER_OF_TAPS-1)) Global_set_actual_tap = NUMBER_OF_TAPS-1;
+		else if(Global_set_actual_tap<0) Global_set_actual_tap = 0;
+
+		//Emulation - error always equals 0 in that case
+		#ifdef EMULATION
+		MVS_actual_voltage = MVS_voltage_set;
+		#endif
+
+
 
 		//PID calibration
 		PID_Voltage_PLL.KP = PID_1_KP;
@@ -375,6 +412,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 
 		//Diagnostic data exchange with CM4
+
 	}
 
 	// 10 kHz frequency timer
@@ -812,7 +850,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					}
 				}
 
-		HAL_SPI_Transmit_IT(&hspi4, (uint8_t*)spi_frame_tap_info[0].byte, 1);
+		//HAL_SPI_Transmit_IT(&hspi4, (uint8_t*)spi_frame_tap_info[0].byte, 1);
+		data_spi[0] = spi_frame_tap_info[0].byte;
+		HAL_SPI_Transmit_IT(&hspi4, (uint8_t*)data_spi, 1);
+		HAL_SPI_Receive_IT(&hspi4, (uint8_t*)rec_data_spi, 1);
+		HAL_UART_Transmit_IT(&huart6, (uint8_t*)data_spi, 1);
+		HAL_UART_Receive_IT(&huart6, &UART_received_frame, 1);
 		//HAL_SPI_Transmit_IT(&hspi5, (uint8_t*)spi_frame_tap_info[1].byte, 1);
 		//HAL_SPI_Transmit_IT(&hspi6, (uint8_t*)spi_frame_tap_info[2].byte, 1);
 
@@ -836,6 +879,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		DAC_test_RMS = RMS((ADC_raw_current[2]-2048)*0.07324218, &DAC_test_pll);
 	}
 }
+
 
 /* USER CODE END 4 */
 
