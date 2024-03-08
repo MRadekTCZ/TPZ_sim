@@ -20,7 +20,6 @@
 #include "main.h"
 #include "adc.h"
 #include "dma.h"
-#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -39,6 +38,9 @@
 #include "MRB_PLL.h"
 #define RAD_TO_DEGREE_CONV 57.29577951308
 #define SCALE 0.003663004
+#define PHASE_A 0
+#define PHASE_B 1
+#define PHASE_C 2
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -148,11 +150,13 @@ volatile uint16_t *MDB_REG_1022 = (uint16_t *)0x3800002C;
 
 volatile uint16_t *MDB_REG_1050 = (uint16_t *)0x38000064;
 
-uint8_t data_spi[8];
-uint8_t rec_data_spi[8];
-byte_frame_tap spi_frame_tap_info[3];
-byte_frame_tap UART_received_frame;
-uint8_t uart_send;
+uint16_t failed_thyristor_ignition = 0;
+uint16_t failed_thyristor_ignition_freeze = 0;
+
+byte_frame_tap UART_frame_tap_info[3];
+byte_frame_tap UART_received_frame[3];
+uint8_t uart_send_frame[3];
+uint8_t UART_ERROR;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -245,7 +249,6 @@ Error_Handler();
   MX_TIM16_Init();
   MX_ADC2_Init();
   MX_TIM17_Init();
-  MX_SPI4_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim13);
@@ -412,7 +415,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 
 		//Diagnostic data exchange with CM4
+		*MDB_REG_1000 = Global_set_actual_tap;
+		*MDB_REG_1001 = actual_tap[PHASE_A];
+		*MDB_REG_1002 = actual_tap[PHASE_B];
+		*MDB_REG_1003 = actual_tap[PHASE_C];
+		*MDB_REG_1004 = 366;
+		*MDB_REG_1005 = 367;
+		*MDB_REG_1006 = 368;
+		*MDB_REG_1007 = (unsigned int)(10*current_RMS[PHASE_A]);
+		*MDB_REG_1008 = (unsigned int)(10*current_RMS[PHASE_B]);
+		*MDB_REG_1009 = (unsigned int)(10*current_RMS[PHASE_C]);
 
+		if(UART_received_frame[0].byte == 0x00) UART_ERROR = 0x01;
+		else UART_ERROR = 0x00;
 	}
 
 	// 10 kHz frequency timer
@@ -522,7 +537,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		                            tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 		                            tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 		                            state_machine[phase] = 1;
-		                            spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+		                            UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 		                        }
 		                        break;
 		                    case 1:
@@ -532,7 +547,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		                            tppz[phase].Tap_select[set_actual_tap[phase]].Tap_up = ON;
 		                            actual_tap[phase] = set_actual_tap[phase];
 		                            state_machine[phase] = 0;
-		                            spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+		                            UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 		                        }
 		                        break;
 		                    }
@@ -556,7 +571,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		                    tppz[phase].Tap_select[actual_tap[phase]].Tap_down = ON;
 		                    tppz[phase].Tap_select[actual_tap[phase]].Tap_up = ON;
 		                    state_machine[phase] = 0;
-		                    spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+		                    UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 		                }
 		           //************************************
 		           //End of protections
@@ -568,7 +583,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 						if (actual_tap[phase] == set_actual_tap[phase])
 						{
 							watchdog[phase].counter = 0; //if tap set is equal to actual tap
-							spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+							UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 						}
 						else if (actual_tap[phase] != set_actual_tap[phase])
 						{
@@ -585,7 +600,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 
@@ -596,7 +611,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase]+1].Tap_up = ON;
 											tppz[phase].Tap_select[actual_tap[phase]+1].Tap_down = ON;
 											state_machine[phase] = 2;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]+1, phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]+1, phase );
 										}
 										break;
 									case 2:
@@ -605,7 +620,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 											actual_tap[phase]++;
 											state_machine[phase] = 0;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 
 										}
 										break;
@@ -624,7 +639,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 
 										}
 										break;
@@ -635,7 +650,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 											tppz[phase].Tap_select[actual_tap[phase] + tap_delta].Tap_up = ON;
 											state_machine[phase] = 2;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
 										}
 
 										break;
@@ -646,7 +661,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 											tppz[phase].Tap_select[actual_tap[phase] + tap_delta].Tap_down = ON;
 											state_machine[phase] = 3;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
 
 										}
 
@@ -658,7 +673,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											//actual_tap[phase]++;
 											actual_tap[phase] += tap_delta;
 											state_machine[phase] = 0;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 
 
 										}
@@ -680,7 +695,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 
@@ -689,7 +704,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											tppz[phase].Tap_select[actual_tap[phase] + tap_delta].Tap_down = ON;
 											state_machine[phase] = 2;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
 										}
 										break;
 
@@ -698,7 +713,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											tppz[phase].Tap_select[actual_tap[phase] + tap_delta].Tap_up = ON;
 											state_machine[phase] = 3;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase] + tap_delta, phase );
 										}
 										break;
 
@@ -708,7 +723,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											//actual_tap[phase]++;
 											actual_tap[phase] += tap_delta;
 											state_machine[phase] = 0;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 
 										}
 										break;
@@ -730,7 +745,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 									case 1:
@@ -739,7 +754,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase] - 1].Tap_up = ON;
 											tppz[phase].Tap_select[actual_tap[phase] - 1].Tap_down = ON;
 											state_machine[phase] = 2;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]-1, phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]-1, phase );
 										}
 										break;
 									case 2:
@@ -747,7 +762,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											actual_tap[phase]--;
 											state_machine[phase] = 0;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 
 
 										}
@@ -765,7 +780,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 									case 1:
@@ -773,7 +788,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											tppz[phase].Tap_select[actual_tap[phase] - tap_delta].Tap_down = ON;
 											state_machine[phase] = 2;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]-tap_delta, phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]-tap_delta, phase );
 										}
 										break;
 									case 2:
@@ -781,7 +796,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											tppz[phase].Tap_select[actual_tap[phase] - tap_delta].Tap_up = ON;
 											state_machine[phase] = 3;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]-tap_delta, phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]-tap_delta, phase );
 										}
 										break;
 									case 3:
@@ -791,7 +806,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											//actual_tap[phase]--;
 											actual_tap[phase] -= tap_delta;
 											state_machine[phase] = 0;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 									}
@@ -810,7 +825,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_up = OFF;
 											state_machine[phase] = 1;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 									case 1:
@@ -821,7 +836,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											tppz[phase].Tap_select[actual_tap[phase] - tap_delta].Tap_down = ON;
 											tppz[phase].Tap_select[actual_tap[phase]].Tap_down = OFF;
 											state_machine[phase] = 2;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]- tap_delta, phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]- tap_delta, phase );
 										}
 										break;
 									case 2:
@@ -829,7 +844,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 										{
 											tppz[phase].Tap_select[actual_tap[phase] - tap_delta].Tap_up = ON;
 											state_machine[phase] = 3;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]- tap_delta, phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase]- tap_delta, phase );
 										}
 										break;
 									case 3:
@@ -838,7 +853,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 											//actual_tap[phase]--;
 											actual_tap[phase] -= tap_delta;
 											state_machine[phase] = 0;
-											spi_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
+											UART_frame_tap_info[phase] = Tap_bit(tppz[phase], actual_tap[phase], phase );
 										}
 										break;
 									}
@@ -850,14 +865,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					}
 				}
 
-		//HAL_SPI_Transmit_IT(&hspi4, (uint8_t*)spi_frame_tap_info[0].byte, 1);
-		data_spi[0] = spi_frame_tap_info[0].byte;
-		HAL_SPI_Transmit_IT(&hspi4, (uint8_t*)data_spi, 1);
-		HAL_SPI_Receive_IT(&hspi4, (uint8_t*)rec_data_spi, 1);
-		HAL_UART_Transmit_IT(&huart6, (uint8_t*)data_spi, 1);
-		HAL_UART_Receive_IT(&huart6, &UART_received_frame, 1);
-		//HAL_SPI_Transmit_IT(&hspi5, (uint8_t*)spi_frame_tap_info[1].byte, 1);
-		//HAL_SPI_Transmit_IT(&hspi6, (uint8_t*)spi_frame_tap_info[2].byte, 1);
+		//Data send to slave described in data sheet
+		//bit 7,6 -> SLAVE address (1 or 2 or 3 -> 0b01, 0b10, 0b11)
+		//bit 5,4 -> Actual thyristor masking, 11 - down and up on, 10 - down on / up off etc.
+		//bit 3:0 -> actual tap number to turn on thyristor (bit mask is put later) (from 0 to 15)
+		uart_send_frame[0] = UART_frame_tap_info[0].byte;
+		HAL_UART_Transmit_IT(&huart6, &uart_send_frame[0], 1);
+		HAL_UART_Receive_IT(&huart6, &UART_received_frame[0].byte, 1);
+		//uart_send[1] = UART_frame_tap_info[1].byte;
+		//HAL_UART_Transmit_IT(&huart1, &uart_send_frame[1], 1);
+		//HAL_UART_Receive_IT(&huart1, &UART_received_frame[1], 1);
+		//uart_send[2] = UART_frame_tap_info[2].byte;
+		//HAL_UART_Transmit_IT(&huart2, &uart_send_frame[2], 1);
+		//HAL_UART_Receive_IT(&huart2, &UART_received_frame[2], 1);
 
 		/*********************************************************************************************************************************/
 		//END OF ALGORITHM
@@ -879,7 +899,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		DAC_test_RMS = RMS((ADC_raw_current[2]-2048)*0.07324218, &DAC_test_pll);
 	}
 }
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart->Instance == USART6)
+	{
+		if((UART_received_frame[0].byte-0x01) != UART_frame_tap_info[0].byte_8.actual_tap)
+		{
+			failed_thyristor_ignition =+ 1;
+			failed_thyristor_ignition_freeze =+ 1;
+		}
+		else failed_thyristor_ignition = 0;
+	}
+}
 
 /* USER CODE END 4 */
 
