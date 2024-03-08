@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -59,8 +58,7 @@ typedef union BYTE_u
 	tap_info_frame byte_8;
 	unsigned char byte;
 }byte_frame_tap;
-byte_frame_tap SPI_received_frame;
-uint8_t inkr = 0x01;
+
 byte_frame_tap UART_received_frame;
 uint8_t uart_send;
 /* USER CODE END PV */
@@ -73,7 +71,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t data_spi[8];
+
 /* USER CODE END 0 */
 
 /**
@@ -105,14 +103,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  MX_SPI4_Init();
   MX_TIM11_Init();
   MX_TIM10_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim10);
   HAL_TIM_Base_Start_IT(&htim11);
-  HAL_SPI_Receive_IT(&hspi4,&SPI_received_frame.byte,1);
   HAL_UART_Transmit_IT(&huart6, 0x45, 1);
   HAL_UART_Receive_IT(&huart6, &UART_received_frame, 1);
   /* USER CODE END 2 */
@@ -184,23 +180,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if(htim->Instance == TIM10)
 	{
 		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-		inkr = inkr + 1;
 	}
 	if(htim->Instance == TIM11)
 	{
-		//HAL_SPI_Receive_IT(&hspi4,&SPI_received_frame.byte,1);
-		HAL_SPI_Receive_IT(&hspi4,&SPI_received_frame.byte,1);
-		data_spi[0] = SPI_received_frame.byte_8.actual_tap + 0x01;
-		HAL_SPI_Transmit_IT(&hspi4, (uint8_t*)data_spi, 1);
+	}
+}
 
-	}
-}
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
-{
-	if(hspi->Instance==SPI4)
-	{
-	}
-}
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance == USART6)
