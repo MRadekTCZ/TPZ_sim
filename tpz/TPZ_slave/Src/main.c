@@ -45,7 +45,24 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+typedef struct TAP_INFO_FRAME
+{
+	unsigned char actual_tap : 4;
+	unsigned char tap_up : 1;
+	unsigned char tap_down : 1;
+	unsigned char b1 : 1;
+	unsigned char b0 : 1;
+}tap_info_frame;
 
+typedef union BYTE_u
+{
+	tap_info_frame byte_8;
+	unsigned char byte;
+}byte_frame_tap;
+byte_frame_tap SPI_received_frame;
+uint8_t inkr = 0x01;
+byte_frame_tap UART_received_frame;
+uint8_t uart_send;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,15 +108,18 @@ int main(void)
   MX_SPI4_Init();
   MX_TIM11_Init();
   MX_TIM10_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim10);
   HAL_TIM_Base_Start_IT(&htim11);
-
-  HAL_SPI_Receive(&hspi4,data_spi,1,10);
+  HAL_SPI_Receive_IT(&hspi4,&SPI_received_frame.byte,1);
+  HAL_UART_Transmit_IT(&huart6, 0x45, 1);
+  HAL_UART_Receive_IT(&huart6, &UART_received_frame, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -132,7 +152,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 50;
+  RCC_OscInitStruct.PLL.PLLN = 72;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -149,22 +169,14 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
-{
-	if(hspi->Instance==SPI4)
-	{
-		uint8_t tx_buf[] = {data_spi[1]};
-		//HAL_SPI_Transmit_IT(&hspi4, (uint8_t*)tx_buf, 1);
 
-	}
-}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -172,7 +184,32 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if(htim->Instance == TIM10)
 	{
 		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-		HAL_SPI_Receive(&hspi4,data_spi,1,10);
+		inkr = inkr + 1;
+	}
+	if(htim->Instance == TIM11)
+	{
+		//HAL_SPI_Receive_IT(&hspi4,&SPI_received_frame.byte,1);
+		HAL_SPI_Receive_IT(&hspi4,&SPI_received_frame.byte,1);
+		data_spi[0] = SPI_received_frame.byte_8.actual_tap + 0x01;
+		HAL_SPI_Transmit_IT(&hspi4, (uint8_t*)data_spi, 1);
+
+	}
+}
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	if(hspi->Instance==SPI4)
+	{
+	}
+}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart->Instance == USART6)
+	{
+		//Tu ma byc pointer czy nie???
+		  HAL_UART_Transmit_IT(&huart6, &uart_send, 1);
+		  uart_send = UART_received_frame.byte_8.actual_tap + 0x01;
+		  HAL_UART_Receive_IT(&huart6, &UART_received_frame, 1);
+
 	}
 }
 /* USER CODE END 4 */
