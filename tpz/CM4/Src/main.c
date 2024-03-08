@@ -198,10 +198,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	//50Hz - Modbus and diagnostics
 	if(htim->Instance == TIM14)
 	{
-		  Modbus_registers[0] = 0x12;
-		  Modbus_registers[1] = 0x77;
-		  Modbus_registers[2] = 0x333;
-		  Modbus_registers[5] = 0xABC0;
+		  Modbus_registers[0] = *MDB_REG_1000;
+		  Modbus_registers[1] = *MDB_REG_1001;
+		  Modbus_registers[2] = *MDB_REG_1002;
+		  Modbus_registers[3] = *MDB_REG_1003;
+		  Modbus_registers[4] = *MDB_REG_1004;
+		  Modbus_registers[5] = *MDB_REG_1005;
+		  Modbus_registers[6] = *MDB_REG_1006;
+		  Modbus_registers[7] = *MDB_REG_1007;
+		  Modbus_registers[8] = *MDB_REG_1008;
+		  Modbus_registers[9] = *MDB_REG_1009;
+		  Modbus_registers[11] = 0xABCD;
 		  Modbus_registers[20] = *MDB_REG_1020;
 		  Modbus_registers[21] = *MDB_REG_1021;
 		  Modbus_registers[42] = 0xA337;
