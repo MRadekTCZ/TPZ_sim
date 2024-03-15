@@ -101,9 +101,59 @@ volatile uint16_t *MDB_REG_1019 = (uint16_t *)0x38000026;
 volatile uint16_t *MDB_REG_1020 = (uint16_t *)0x38000028;
 volatile uint16_t *MDB_REG_1021 = (uint16_t *)0x3800002A;
 volatile uint16_t *MDB_REG_1022 = (uint16_t *)0x3800002C;
-
+volatile uint16_t *MDB_REG_1023 = (uint16_t *)0x3800002E;
+volatile uint16_t *MDB_REG_1024 = (uint16_t *)0x38000030;
+volatile uint16_t *MDB_REG_1025 = (uint16_t *)0x38000032;
+volatile uint16_t *MDB_REG_1026 = (uint16_t *)0x38000034;
+volatile uint16_t *MDB_REG_1027 = (uint16_t *)0x38000036;
+volatile uint16_t *MDB_REG_1028 = (uint16_t *)0x38000038;
+volatile uint16_t *MDB_REG_1029 = (uint16_t *)0x3800003A;
+volatile uint16_t *MDB_REG_1030 = (uint16_t *)0x3800003C;
+volatile uint16_t *MDB_REG_1031 = (uint16_t *)0x3800003E;
+volatile uint16_t *MDB_REG_1032 = (uint16_t *)0x38000040;
+volatile uint16_t *MDB_REG_1033 = (uint16_t *)0x38000042;
+volatile uint16_t *MDB_REG_1034 = (uint16_t *)0x38000044;
+volatile uint16_t *MDB_REG_1035 = (uint16_t *)0x38000046;
+volatile uint16_t *MDB_REG_1036 = (uint16_t *)0x38000048;
+volatile uint16_t *MDB_REG_1037 = (uint16_t *)0x3800004A;
+volatile uint16_t *MDB_REG_1038 = (uint16_t *)0x3800004C;
+volatile uint16_t *MDB_REG_1039 = (uint16_t *)0x3800004E;
+volatile uint16_t *MDB_REG_1040 = (uint16_t *)0x38000050;
+volatile uint16_t *MDB_REG_1041 = (uint16_t *)0x38000052;
+volatile uint16_t *MDB_REG_1042 = (uint16_t *)0x38000054;
+volatile uint16_t *MDB_REG_1043 = (uint16_t *)0x38000056;
+volatile uint16_t *MDB_REG_1044 = (uint16_t *)0x38000058;
+volatile uint16_t *MDB_REG_1045 = (uint16_t *)0x3800005A;
+volatile uint16_t *MDB_REG_1046 = (uint16_t *)0x3800005C;
+volatile uint16_t *MDB_REG_1047 = (uint16_t *)0x3800005E;
+volatile uint16_t *MDB_REG_1048 = (uint16_t *)0x38000060;
+volatile uint16_t *MDB_REG_1049 = (uint16_t *)0x38000062;
 volatile uint16_t *MDB_REG_1050 = (uint16_t *)0x38000064;
+volatile uint16_t *MDB_REG_1051 = (uint16_t *)0x38000066;
+volatile uint16_t *MDB_REG_1052 = (uint16_t *)0x38000068;
+volatile uint16_t *MDB_REG_1053 = (uint16_t *)0x3800006A;
+volatile uint16_t *MDB_REG_1054 = (uint16_t *)0x3800006C;
+volatile uint16_t *MDB_REG_1055 = (uint16_t *)0x3800006E;
+volatile uint16_t *MDB_REG_1056 = (uint16_t *)0x38000070;
+volatile uint16_t *MDB_REG_1057 = (uint16_t *)0x38000072;
+volatile uint16_t *MDB_REG_1058 = (uint16_t *)0x38000074;
+volatile uint16_t *MDB_REG_1059 = (uint16_t *)0x38000076;
+volatile uint16_t *MDB_REG_1060 = (uint16_t *)0x38000078;
+volatile uint16_t *MDB_REG_1061 = (uint16_t *)0x3800007A;
+volatile uint16_t *MDB_REG_1062 = (uint16_t *)0x3800007C;
+volatile uint16_t *MDB_REG_1063 = (uint16_t *)0x3800007E;
+volatile uint16_t *MDB_REG_1064 = (uint16_t *)0x38000080;
+volatile uint16_t *MDB_REG_1065 = (uint16_t *)0x38000082;
+volatile uint16_t *MDB_REG_1066 = (uint16_t *)0x38000084;
+volatile uint16_t *MDB_REG_1067 = (uint16_t *)0x38000086;
+volatile uint16_t *MDB_REG_1068 = (uint16_t *)0x38000088;
+volatile uint16_t *MDB_REG_1069 = (uint16_t *)0x3800008A;
+volatile uint16_t *MDB_REG_1070 = (uint16_t *)0x3800008C;
+volatile uint16_t *MDB_REG_1071 = (uint16_t *)0x3800008E;
+volatile uint16_t *MDB_REG_1072 = (uint16_t *)0x38000090;
 
+#define SRAM_START_ADDRESS 0x38000000
+uint16_t *Modbus_add_pointer = 0;
 uint32_t data_read;
 uint32_t data_read2;
 /* USER CODE END 0 */
@@ -154,6 +204,7 @@ int main(void)
   MX_DAC1_Init();
   MX_TIM1_Init();
   MX_TIM15_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
   HAL_DAC_Start(&hdac1, DAC_CHANNEL_2);
@@ -198,6 +249,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	//50Hz - Modbus and diagnostics
 	if(htim->Instance == TIM14)
 	{
+		//Test if this assigment works
+		 //Modbus_registers[0] = &Modbus_reg_pointer;
+		 Modbus_add_pointer = (uint16_t*)SRAM_START_ADDRESS;
+/*
 		  Modbus_registers[0] = *MDB_REG_1000;
 		  Modbus_registers[1] = *MDB_REG_1001;
 		  Modbus_registers[2] = *MDB_REG_1002;
@@ -208,6 +263,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		  Modbus_registers[7] = *MDB_REG_1007;
 		  Modbus_registers[8] = *MDB_REG_1008;
 		  Modbus_registers[9] = *MDB_REG_1009;
+		  Modbus_registers[10] = *MDB_REG_1010;
 		  Modbus_registers[11] = 0xABCD;
 		  Modbus_registers[20] = *MDB_REG_1020;
 		  Modbus_registers[21] = *MDB_REG_1021;
@@ -215,6 +271,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		  Modbus_registers[43] = 0xBC23;
 		  Modbus_registers[50] = 0xD2D2;
 		  Modbus_registers[51] = 0xD2D2;
+*/
 	}
 	if(htim->Instance == TIM7)
 	{

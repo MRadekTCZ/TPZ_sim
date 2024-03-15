@@ -28,10 +28,16 @@
 #define WRITE_OFFSET 50
 
 //ERRORS
+#ifndef ASCII
 #define ILLEGAL_FUNCTION 0xFFF1
 #define ILLEGAL_DATA_ADDRESS 0xFFF2
 #define ILLEGAL_DATA_VALUE 0xFFF3
 #define CRC_ERROR 0xFFF8
+#endif
+#define ILLEGAL_FUNCTION 0x4631 //F1
+#define ILLEGAL_DATA_ADDRESS 0x4632 // F2
+#define ILLEGAL_DATA_VALUE 0x4633 //F3
+#define CRC_ERROR 0x4638 //F8
 typedef unsigned short int usint;
 union Data
 {
