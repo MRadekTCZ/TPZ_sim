@@ -29,7 +29,8 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+void switch_off_all_taps(void);
+void GPIO_Test_routine(void);
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */

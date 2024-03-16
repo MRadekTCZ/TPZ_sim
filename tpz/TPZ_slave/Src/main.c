@@ -24,7 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#define SLAVE_ADDRESS 0x01
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,7 +60,12 @@ typedef union BYTE_u
 }byte_frame_tap;
 
 byte_frame_tap UART_received_frame;
-uint8_t uart_send;
+uint8_t uart_send[5];
+uint8_t tap;
+uint8_t bit_mask_up;
+uint8_t bit_mask_down;
+
+uint32_t task_counter;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -109,7 +114,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim10);
   HAL_TIM_Base_Start_IT(&htim11);
-  HAL_UART_Transmit_IT(&huart6, 0x45, 1);
+  HAL_UART_Transmit_IT(&huart6, 0x2D2D2, 5);
   HAL_UART_Receive_IT(&huart6, &UART_received_frame, 1);
   /* USER CODE END 2 */
 
@@ -176,10 +181,12 @@ void SystemClock_Config(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	//5Hz timer - LED, counting P,Q,S, SRAM data exchange
+	//2Hz timer - Data sending via USB port. LED toggle. This interrupt has lowest priority.
 	if(htim->Instance == TIM10)
 	{
 		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		HAL_UART_Transmit_IT(&huart2, &uart_send, 5);
+		task_counter++;
 	}
 	if(htim->Instance == TIM11)
 	{
@@ -190,12 +197,116 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance == USART6)
 	{
-		//Tu ma byc pointer czy nie???
-		  HAL_UART_Transmit_IT(&huart6, &uart_send, 1);
-		  uart_send = UART_received_frame.byte_8.actual_tap + 0x01;
-		  HAL_UART_Receive_IT(&huart6, &UART_received_frame, 1);
+		//Conditions checks if packet is for this Phase device
+		if((UART_received_frame.byte_8.b0*2 + UART_received_frame.byte_8.b1) == SLAVE_ADDRESS)
+		{
+		  uart_send[0] = UART_received_frame.byte_8.actual_tap + 0x01;
+		  tap = UART_received_frame.byte_8.actual_tap;
+		  bit_mask_down = UART_received_frame.byte_8.tap_down;
+		  bit_mask_up = UART_received_frame.byte_8.tap_up;
 
+		  switch_off_all_taps();
+		  uart_send[1] = 0;
+		  uart_send[2] = 0;
+		  uart_send[3] = 0;
+		  uart_send[4] = 0;
+
+		  switch(tap)
+		  {
+		  case 0:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOA, TAP0_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOA, TAP0_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[1] = (bit_mask_down << 1) +  (bit_mask_up << 0);
+			  break;
+		  case 1:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOA, TAP1_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOA, TAP1_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[1] = (bit_mask_down << 3) +  (bit_mask_up << 2);
+			  break;
+		  case 2:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOA, TAP2_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOB, TAP2_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[1] = (bit_mask_down << 5) +  (bit_mask_up << 4);
+			  break;
+		  case 3:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOB, TAP3_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOB, TAP3_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[1] = (bit_mask_down << 7) +  (bit_mask_up << 6);
+			  break;
+		  case 4:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOA, TAP4_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOB, TAP4_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[2] = (bit_mask_down << 1) +  (bit_mask_up << 0);
+			  break;
+		  case 5:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOB, TAP5_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOB, TAP5_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[2] = (bit_mask_down << 3) +  (bit_mask_up << 2);
+			  break;
+		  case 6:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOB, TAP6_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOB, TAP6_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[2] = (bit_mask_down << 5) +  (bit_mask_up << 4);
+			  break;
+		  case 7:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOB, TAP7_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOB, TAP7_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[2] = (bit_mask_down << 7) +  (bit_mask_up << 6);
+			  break;
+		  case 8:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOA, TAP8_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOB, TAP8_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[3] = (bit_mask_down << 1) +  (bit_mask_up << 0);
+			  break;
+		  case 9:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOA, TAP9_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOB, TAP9_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[3] = (bit_mask_down << 3) +  (bit_mask_up << 2);
+			  break;
+		  case 10:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOC, TAP10_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOC, TAP10_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[3] = (bit_mask_down << 5) +  (bit_mask_up << 4);
+			  break;
+		  case 11:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOC, TAP11_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOC, TAP11_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[3] = (bit_mask_down << 7) +  (bit_mask_up << 6);
+			  break;
+		  case 12:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOC, TAP12_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOC, TAP12_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[4] = (bit_mask_down << 1) +  (bit_mask_up << 0);
+			  break;
+		  case 13:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOC, TAP13_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOC, TAP13_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[4] = (bit_mask_down << 3) +  (bit_mask_up << 2);
+			  break;
+		  case 14:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOC, TAP14_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOC, TAP14_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[4] = (bit_mask_down << 5) +  (bit_mask_up << 4);
+			  break;
+		  case 15:
+			  bit_mask_down ? HAL_GPIO_WritePin(GPIOC, TAP15_DOWN_Pin, GPIO_PIN_SET) : 0;
+			  bit_mask_up ? HAL_GPIO_WritePin(GPIOD, TAP15_UP_Pin, GPIO_PIN_SET) : 0;
+			  uart_send[4] = (bit_mask_down << 7) +  (bit_mask_up << 6);
+			  break;
+		  }
+
+		  HAL_UART_Transmit_IT(&huart6, &uart_send, 5);
+		  HAL_UART_Receive_IT(&huart6, &UART_received_frame, 1);
 	}
+	}
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if(GPIO_Pin == GPIO_PIN_13) {
+	  //This routine should be done offline (without transformer connection to grid)
+	  GPIO_Test_routine();
+  }
 }
 /* USER CODE END 4 */
 
