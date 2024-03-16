@@ -37,6 +37,7 @@
 #include "MRB_TRIGONOMETRIC_LIB.h"
 #include "MRB_PLL.h"
 #define RAD_TO_DEGREE_CONV 57.29577951308
+#define DEFREE_TO_RAD_CONV 0.01745329251
 #define SCALE 0.003663004
 #define PHASE_A 0
 #define PHASE_B 1
@@ -126,11 +127,6 @@ double actual_current[3], actual_voltage[3];
 double theta_U_emulated[3] = {0, PI_BY_3*4, PI_BY_3*2 };
 double theta_I_emulated[3] = {0-COS_PHI_SHIFT, PI_BY_3*4-COS_PHI_SHIFT,PI_BY_3*2-COS_PHI_SHIFT};
 
-
-
-float DAC_test_RMS;
-PLL_1phase_Handler DAC_test_pll;
-
 //DIAGNOSTICS------------------
 //#include <stdint.h>
 volatile uint16_t *MDB_REG_1000 = (uint16_t *)0x38000000;
@@ -217,7 +213,7 @@ struct Time
 	uint16_t seconds;
 	uint16_t minutes;
 }app_time;
-
+float delta_fi[3];
 //DATA ECHANGE------
 byte_frame_tap UART_frame_tap_info[3];
 uint8_t uart_send_frame[3];
@@ -338,7 +334,7 @@ Error_Handler();
   HAL_UART_Transmit_IT(&huart6, 0x45, 1);
   HAL_UART_Receive_IT(&huart6, &UART_received_frame_1, 5);
 
-  //Diagnostics data initialisation*********
+  //Diagnostics data initialization*********
   *MDB_REG_1061 = 22000;
   *MDB_REG_1062 = 0x01;
   *MDB_REG_1063 = 0x00;
@@ -541,6 +537,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		*MDB_REG_1022 = app_time.seconds;
 		*MDB_REG_1023 = app_time.minutes;
 
+		//cosinus fi counting
+		if(fabs(voltage_phase[PHASE_A]-current_phase[PHASE_A])<90) delta_fi[PHASE_A] = DEFREE_TO_RAD_CONV*(voltage_phase[PHASE_A]-current_phase[PHASE_A]);
+		*MDB_REG_1029 = (unsigned int)(100*delta_fi[PHASE_A]);
+		if(fabs(voltage_phase[PHASE_B]-current_phase[PHASE_B])<90) delta_fi[PHASE_B] = DEFREE_TO_RAD_CONV*(voltage_phase[PHASE_B]-current_phase[PHASE_B]);
+		*MDB_REG_1033 = (unsigned int)(100*delta_fi[PHASE_B]);
+		if(fabs(voltage_phase[PHASE_C]-current_phase[PHASE_C])<90) delta_fi[PHASE_C] = DEFREE_TO_RAD_CONV*(voltage_phase[PHASE_C]-current_phase[PHASE_C]);
+		*MDB_REG_1037 = (unsigned int)(100*delta_fi[PHASE_C]);
+
 		*MDB_REG_1041 = state_machine[PHASE_A];
 		*MDB_REG_1042 = state_machine[PHASE_B];
 		*MDB_REG_1043 = state_machine[PHASE_C];
@@ -640,6 +644,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(app_time.seconds == 60)
 		{
 			app_time.minutes++;
+			app_time.seconds = 0;
 		}
 
 
