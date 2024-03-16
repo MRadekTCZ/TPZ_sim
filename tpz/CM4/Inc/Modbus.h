@@ -13,7 +13,7 @@
 
 #define ASCII_offset 0x0
 #define REG_OFFSET 1000
-#define WRITE_OFFSET 40
+#define WRITE_OFFSET 60
 #endif
 #ifdef ASCII
 #define ASCII_offset 0x30
@@ -25,7 +25,7 @@
 #define WRITE_REGISTERS 6
 #define READ_DEVICE_INFO_1 14
 #define READ_DEVICE_INFO_2 44
-#define WRITE_OFFSET 50
+#define WRITE_OFFSET 60
 
 //ERRORS
 #ifndef ASCII
