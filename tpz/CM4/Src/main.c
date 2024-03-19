@@ -50,17 +50,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-typedef struct Grid_Power
-{
-	uint16_t current;
-	uint16_t voltage;
-	uint16_t active_power_P;
-	uint16_t reactive_power_Q;
-	uint16_t apparent_power_S;
-	uint16_t cos_fi;
-	uint16_t delta_fi;
-}GP;
-GP GP_phase[3];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -74,12 +64,16 @@ unsigned int CM4_cycles_base_algo_task;
 unsigned int CM4_cycles_Modbus_task;
 unsigned int CM4_cycles_DAC_task;
 unsigned int CM4_cycles_PWM_task;
-uint16_t actual_tap_DAC;
-#define TAP_DAC_SCALE 256
-#define PWM_TAP_SCALE 31.25
+
+float alfa_sin_dac;
+float sin_emulated_double;
+double time_s;
+unsigned int alfa_sin_decimal_pwm;
+unsigned int alfa_sin_decimal_dac;
+
 uint16_t DAC_Output[2] = {0,0};
 uint8_t Modbus_buffer_request[10];  //80bits for 10 bytes from UART -> remote control
-uint8_t Modbus_buffer_response[128];
+uint8_t Modbus_rbuffer_response[128];
 #define MODBUS_ADDRESS_SLAVE 0x01
 Modbus_handler Modbus_request, Modbus_answer;
 uint16_t Modbus_registers[100];
@@ -107,67 +101,11 @@ volatile uint16_t *MDB_REG_1019 = (uint16_t *)0x38000026;
 volatile uint16_t *MDB_REG_1020 = (uint16_t *)0x38000028;
 volatile uint16_t *MDB_REG_1021 = (uint16_t *)0x3800002A;
 volatile uint16_t *MDB_REG_1022 = (uint16_t *)0x3800002C;
-volatile uint16_t *MDB_REG_1023 = (uint16_t *)0x3800002E;
-volatile uint16_t *MDB_REG_1024 = (uint16_t *)0x38000030;
-volatile uint16_t *MDB_REG_1025 = (uint16_t *)0x38000032;
-volatile uint16_t *MDB_REG_1026 = (uint16_t *)0x38000034;
-volatile uint16_t *MDB_REG_1027 = (uint16_t *)0x38000036;
-volatile uint16_t *MDB_REG_1028 = (uint16_t *)0x38000038;
-volatile uint16_t *MDB_REG_1029 = (uint16_t *)0x3800003A;
-volatile uint16_t *MDB_REG_1030 = (uint16_t *)0x3800003C;
-volatile uint16_t *MDB_REG_1031 = (uint16_t *)0x3800003E;
-volatile uint16_t *MDB_REG_1032 = (uint16_t *)0x38000040;
-volatile uint16_t *MDB_REG_1033 = (uint16_t *)0x38000042;
-volatile uint16_t *MDB_REG_1034 = (uint16_t *)0x38000044;
-volatile uint16_t *MDB_REG_1035 = (uint16_t *)0x38000046;
-volatile uint16_t *MDB_REG_1036 = (uint16_t *)0x38000048;
-volatile uint16_t *MDB_REG_1037 = (uint16_t *)0x3800004A;
-volatile uint16_t *MDB_REG_1038 = (uint16_t *)0x3800004C;
-volatile uint16_t *MDB_REG_1039 = (uint16_t *)0x3800004E;
-volatile uint16_t *MDB_REG_1040 = (uint16_t *)0x38000050;
-volatile uint16_t *MDB_REG_1041 = (uint16_t *)0x38000052;
-volatile uint16_t *MDB_REG_1042 = (uint16_t *)0x38000054;
-volatile uint16_t *MDB_REG_1043 = (uint16_t *)0x38000056;
-volatile uint16_t *MDB_REG_1044 = (uint16_t *)0x38000058;
-volatile uint16_t *MDB_REG_1045 = (uint16_t *)0x3800005A;
-volatile uint16_t *MDB_REG_1046 = (uint16_t *)0x3800005C;
-volatile uint16_t *MDB_REG_1047 = (uint16_t *)0x3800005E;
-volatile uint16_t *MDB_REG_1048 = (uint16_t *)0x38000060;
-volatile uint16_t *MDB_REG_1049 = (uint16_t *)0x38000062;
+
 volatile uint16_t *MDB_REG_1050 = (uint16_t *)0x38000064;
-volatile uint16_t *MDB_REG_1051 = (uint16_t *)0x38000066;
-volatile uint16_t *MDB_REG_1052 = (uint16_t *)0x38000068;
-volatile uint16_t *MDB_REG_1053 = (uint16_t *)0x3800006A;
-volatile uint16_t *MDB_REG_1054 = (uint16_t *)0x3800006C;
-volatile uint16_t *MDB_REG_1055 = (uint16_t *)0x3800006E;
-volatile uint16_t *MDB_REG_1056 = (uint16_t *)0x38000070;
-volatile uint16_t *MDB_REG_1057 = (uint16_t *)0x38000072;
-volatile uint16_t *MDB_REG_1058 = (uint16_t *)0x38000074;
-volatile uint16_t *MDB_REG_1059 = (uint16_t *)0x38000076;
-volatile uint16_t *MDB_REG_1060 = (uint16_t *)0x38000078;
-volatile uint16_t *MDB_REG_1061 = (uint16_t *)0x3800007A;
-volatile uint16_t *MDB_REG_1062 = (uint16_t *)0x3800007C;
-volatile uint16_t *MDB_REG_1063 = (uint16_t *)0x3800007E;
-volatile uint16_t *MDB_REG_1064 = (uint16_t *)0x38000080;
-volatile uint16_t *MDB_REG_1065 = (uint16_t *)0x38000082;
-volatile uint16_t *MDB_REG_1066 = (uint16_t *)0x38000084;
-volatile uint16_t *MDB_REG_1067 = (uint16_t *)0x38000086;
-volatile uint16_t *MDB_REG_1068 = (uint16_t *)0x38000088;
-volatile uint16_t *MDB_REG_1069 = (uint16_t *)0x3800008A;
-volatile uint16_t *MDB_REG_1070 = (uint16_t *)0x3800008C;
-volatile uint16_t *MDB_REG_1071 = (uint16_t *)0x3800008E;
-volatile uint16_t *MDB_REG_1072 = (uint16_t *)0x38000090;
 
-#define SRAM_START_ADDRESS 0x38000000
-volatile uint16_t *Modbus_add_pointer = (uint16_t*)0x38000000;
-
-//EMULATION PURPOSES******
-//#define EMULATION
-float alfa_sin_dac;
-float sin_emulated_double;
-double time_s;
-unsigned int alfa_sin_decimal_pwm;
-unsigned int alfa_sin_decimal_dac;
+uint32_t data_read;
+uint32_t data_read2;
 /* USER CODE END 0 */
 
 /**
@@ -177,16 +115,7 @@ unsigned int alfa_sin_decimal_dac;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	//Diagnostics data initialization*********
-	  *MDB_REG_1061 = 22000;
-	  *MDB_REG_1062 = 0x01;
-	  *MDB_REG_1063 = 0x00;
-	  *MDB_REG_1064 = 0x0;
-	  *MDB_REG_1065 = 0x0;
-	  *MDB_REG_1066 = 10;
-	  *MDB_REG_1067 = 200;
-	  *MDB_REG_1068 = 0;
-	  *MDB_REG_1069 = 500;
+
   /* USER CODE END 1 */
 
 /* USER CODE BEGIN Boot_Mode_Sequence_1 */
@@ -232,23 +161,12 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim15);
   HAL_TIM_Base_Start_IT(&htim14);
   HAL_TIM_Base_Start_IT(&htim7);
-
   HAL_UART_Transmit_IT(&huart3, 0x45, 1);
-
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_UART_Receive_IT(&huart3, &Modbus_buffer_request, 10);
   // MANUAL INITATE OF GPIO PERIPHAL - STM32 BUG? - it doesn't initialize on CM4
   MX_GPIO_Init();
-  Modbus_registers[19] = 0x5443;//TC - Tap changer
-  Modbus_registers[61] = 22000;
-  Modbus_registers[62] = 0x01;
-  Modbus_registers[63] = 0x0;
-  Modbus_registers[64] = 0x0;
-  Modbus_registers[65] = 0x0;
-  Modbus_registers[66] = 10;;
-  Modbus_registers[67] = 200;
-  Modbus_registers[68] = 0x0;
-  Modbus_registers[69] = 500;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -269,12 +187,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if(htim->Instance == TIM15)
 	{
 		CM4_cycles_base_algo_task++;
+		data_read  = *MDB_REG_1020;
+		data_read2  = *MDB_REG_1021;
 		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-		actual_tap_DAC = TAP_DAC_SCALE * Modbus_registers[0];
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, floor(Modbus_registers[0]*PWM_TAP_SCALE));
-
-
-		//GP_phase[0].current = Modbus_registers[7];
 
 
 	}
@@ -283,31 +198,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	//50Hz - Modbus and diagnostics
 	if(htim->Instance == TIM14)
 	{
-		CM4_cycles_Modbus_task++;
-		Modbus_registers[24] = CM4_cycles_Modbus_task;
-		Modbus_registers[25] = CM4_cycles_base_algo_task;
-		//Test if this assigment works
-		 //Modbus_registers[0] = &Modbus_reg_pointer;
-		 Modbus_add_pointer = (uint16_t*)SRAM_START_ADDRESS;
-
-		 for(int i =0; i<60; i++)
-		 {
-			 Modbus_registers[i] = *(Modbus_add_pointer+i);
-		 }
-
-		 //simple password - has to be written to access write registers (mm)
-		 //if(Modbus_registers[60] == 159)
-		 if(1)
-		 {
-		 for(int i =60; i<100; i++)
-		 {
-			 *(Modbus_add_pointer+i) = Modbus_registers[i];
-		 }
-		 }
-
-
+		  Modbus_registers[0] = 0x12;
+		  Modbus_registers[1] = 0x77;
+		  Modbus_registers[2] = 0x333;
+		  Modbus_registers[5] = 0xABC0;
+		  Modbus_registers[20] = *MDB_REG_1020;
+		  Modbus_registers[21] = *MDB_REG_1021;
+		  Modbus_registers[42] = 0xA337;
+		  Modbus_registers[43] = 0xBC23;
+		  Modbus_registers[50] = 0xD2D2;
+		  Modbus_registers[51] = 0xD2D2;
 	}
-
 	if(htim->Instance == TIM7)
 	{
 		time_s = time_s+ 0.00005;
@@ -315,7 +216,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(alfa_sin_dac > 2*MRB_TL_PI) time_s = 0;
 		sin_emulated_double = sin_f(alfa_sin_dac);
 		alfa_sin_decimal_pwm = floor((sin_emulated_double+1)*500);
-#ifdef EMULATION
 		if(sin_emulated_double >=0)
 			{
 			alfa_sin_decimal_dac = floor((sin_emulated_double)*4095);
@@ -328,14 +228,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			DAC_Output[0] = 0;
 			DAC_Output[1]= alfa_sin_decimal_dac;
 			}
-#endif
-#ifndef EMULATION
-		DAC_Output[0] = actual_tap_DAC;
-		DAC_Output[1] = actual_tap_DAC;
-#endif
-		HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_2, DAC_ALIGN_12B_R,DAC_Output[1]);
 		HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R,DAC_Output[0]);
-
+		HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_2, DAC_ALIGN_12B_R,DAC_Output[1]);
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, alfa_sin_decimal_pwm);
 	}
 
 }
@@ -344,14 +239,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance == USART3)
 	{
+		//Tu ma byc pointer czy nie???
 		Modbus_answer = Receive_request(Modbus_buffer_request, MODBUS_ADDRESS_SLAVE, &Modbus_registers);
-		MakeResponse(Modbus_answer, &Modbus_buffer_response[0]);
 		 HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 		 if (Modbus_answer.function.data_u == 3 || Modbus_answer.function.data_u == 4)
 		  {
-			 HAL_UART_Transmit_IT(&huart3, &Modbus_buffer_response, (8 + Modbus_answer.offset_regCount.data_u*2) );
+			 HAL_UART_Transmit_IT(&huart3, &Modbus_rbuffer_response, (8 + Modbus_answer.offset_regCount.data_u*2) );
 		  }
-		 else HAL_UART_Transmit_IT(&huart3, &Modbus_buffer_response, 10 );
+		 else HAL_UART_Transmit_IT(&huart3, &Modbus_rbuffer_response, 10 );
 
 		 HAL_UART_Receive_IT(&huart3, &Modbus_buffer_request, 10);
 

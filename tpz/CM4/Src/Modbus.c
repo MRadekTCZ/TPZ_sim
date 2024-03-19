@@ -84,8 +84,7 @@ Modbus_handler Receive_request(unsigned char mdb_data_buffer[10], unsigned int s
     MDB_Received_request.crc.data_t[1] = mdb_data_buffer[8];
     MDB_Received_request.crc.data_t[0] = mdb_data_buffer[9];
     #endif
-    //if (CRC_computed == MDB_Received_request.crc.data_u)
-    if(1)
+    if (CRC_computed == MDB_Received_request.crc.data_u)
     {
         MDB_Made_response.address.data_u = slave_address;
         if (slave_address == MDB_Received_request.address.data_t[0])
@@ -117,7 +116,7 @@ Modbus_handler Receive_request(unsigned char mdb_data_buffer[10], unsigned int s
                 }
                 MDB_Made_response.offset_regCount.data_u = MDB_Received_request.regCount_data[0].data_u;
                 break;
-           // #ifndef ASCII
+            #ifndef ASCII
             case WRITE_INPUTS:
                     MDB_Made_response = MDB_Received_request;
                     MDB_Made_response.crc.data_u = 0x00;
@@ -135,7 +134,7 @@ Modbus_handler Receive_request(unsigned char mdb_data_buffer[10], unsigned int s
                         MDB_Data_registers[MDB_Received_request.offset_regCount.data_u - REG_OFFSET] = MDB_Received_request.regCount_data[0].data_u;
                     }
                 break;
-            //#endif
+            #endif
             case READ_DEVICE_INFO_1:
                 MDB_Made_response.address.data_u = 0x5450; //TP
                 MDB_Made_response.function.data_u = 0x5A2D; //Z-

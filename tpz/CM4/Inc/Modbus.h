@@ -13,7 +13,7 @@
 
 #define ASCII_offset 0x0
 #define REG_OFFSET 1000
-#define WRITE_OFFSET 60
+#define WRITE_OFFSET 40
 #endif
 #ifdef ASCII
 #define ASCII_offset 0x30
@@ -25,19 +25,13 @@
 #define WRITE_REGISTERS 6
 #define READ_DEVICE_INFO_1 14
 #define READ_DEVICE_INFO_2 44
-#define WRITE_OFFSET 60
+#define WRITE_OFFSET 50
 
 //ERRORS
-#ifndef ASCII
 #define ILLEGAL_FUNCTION 0xFFF1
 #define ILLEGAL_DATA_ADDRESS 0xFFF2
 #define ILLEGAL_DATA_VALUE 0xFFF3
 #define CRC_ERROR 0xFFF8
-#endif
-#define ILLEGAL_FUNCTION 0x4631 //F1
-#define ILLEGAL_DATA_ADDRESS 0x4632 // F2
-#define ILLEGAL_DATA_VALUE 0x4633 //F3
-#define CRC_ERROR 0x4638 //F8
 typedef unsigned short int usint;
 union Data
 {
